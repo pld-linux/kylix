@@ -1,0 +1,378 @@
+#!/bin/bash
+
+
+
+# BEGIN STRING TABLE
+# These constants should be translated for international use
+#
+PATH_SET_TO="is now set to :"
+GENERATING_FONT_MATRIX="Generating font matrix. Please wait..."
+FONT_MATRIX_GENERATION="Font Matrix Generation"
+PROGRESS_DONE="Done"
+GNOME_DETECTED="Gnome Window Manager detected."
+UPGRADE_ENLIGHTENMENT="Please upgrade to version 0.16.0 or later of the Enlightenment window manager, some functionality cannot be supported."
+LC_ALL_IS_C="LC_ALL is set to C. Can't start Kylix."
+LC_ALL_IS_POSIX="LC_ALL is set to POSIX. Can't start Kylix."
+WARNING="Warning"
+NOT_SET_OK_DEFAULTING_TO="is not set correctly, defaulting to"
+KYLIX_IDE_LOCALE_SETTING="Kylix IDE Locale setting"
+DLG_PATH="/bin/transdlg"
+KY_LOCALE="en_US"
+MSG_LANGUAGE="Language"
+NOT_FOUND_RETRYING_NO_CHARSET="was not found, retrying without charset name..."
+FOR_LANG1="For language"
+FOR_LANG2="several language ids were found"
+MULT_LANG_TAIL="Instead of using the first entry in the list, it is suggested that you define your LANG environment variable like this"
+NO_COUNTRY="was not found, retrying without country name..."
+NOT_RECOGNIZED_DEF="was not recognized, defaulting to English"
+PALETTE_STANDARD="Standard"
+PALETTE_ADDITIONAL="Additional"
+PALETTE_COMMON_CTRLS="Common Controls"
+PALETTE_SYSTEM="System"
+PALETTE_DIALOGS="Dialogs"
+PALETTE_DATA_ACCESS="Data Access"
+PALETTE_DATA_CONTROLS="Data Controls"
+PALETTE_FORMS="Forms"
+PALETTE_PROJECTS="Projects"
+FORMT_STDDLGH_NAME="Standard Dialog (Horizontal)"
+FORMT_STDDLGH_PAGE="Dialogs"
+FORMT_STDDLGH_DESCRIP="OK, Cancel along bottom of dialog."
+FORMT_DLGWHLPH_NAME="Dialog with Help (Horizontal)"
+FORMT_DLGWHLPH_PAGE="Dialogs"
+FORMT_DLGWHLPH_DESCRIP="OK, Cancel, Help along bottom of dialog. This is an Inherited Form."
+FORMT_STDDLGV_NAME="Standard Dialog (Vertical)"
+FORMT_STDDLGV_PAGE="Dialogs"
+FORMT_STDDLGV_DESCRIP="OK, Cancel along right edge."
+FORMT_DLGWHLPV_NAME="Dialog with Help (Vertical)"
+FORMT_DLGWHLPV_PAGE="Dialogs"
+FORMT_DLGWHLPV_DESCRIP="OK, Cancel, Help along right edge. This is an Inherited Form."
+FORMT_ABOUT_NAME="About box"
+FORMT_ABOUT_PAGE="Forms"
+FORMT_ABOUT_DESCRIP="Generic About box dialog."
+FORMT_TABPG_NAME="Tabbed pages"
+FORMT_TABPG_PAGE="Forms"
+FORMT_TABPG_DESCRIP="Generic tabbed pages dialog with OK, Cancel, and Help buttons."
+FORMT_PASSWD_NAME="Password Dialog"
+FORMT_PASSWD_PAGE="Dialogs"
+FORMT_PASSWD_DESCRIP="Generic password entry form."
+FORMT_DUOLIST_NAME="Dual list box"
+FORMT_DUOLIST_PAGE="Forms"
+FORMT_DUOLIST_DESCRIP="Dialog box with two list boxes. Supports moving items from one list to the other."
+FORMT_MASTDET_NAME="Master Detail Data"
+FORMT_MASTDET_PAGE="Forms"
+FORMT_MASTDET_DESCRIP="Master Detail form template"
+FORMT_RECERR_NAME="Reconcile Error Dialog"
+FORMT_RECERR_PAGE="Dialogs"
+FORMT_RECERR_DESCRIP="Reconcile Error Dialog"
+PROJT_MDIAPP_NAME="MDI Application"
+PROJT_MDIAPP_PAGE="Projects"
+PROJT_MDIAPP_DESCRIP="Standard MDI application frame."
+LAUNCH_NOTE1="Note: Please start the Delphi portion of Kylix with the \"startdelphi\" command."
+
+KYDEF_LOCALE="en_US"
+LC_ALL_IS_C1="The LC_ALL environment variable is set to C.  Kylix cannot start with this setting."
+LC_ALL_IS_C2="Defaulting LC_ALL to"
+KHOME="$HOME/.borland"
+KDIR=/usr/share/kylix3_open
+KBIN=$KDIR/bin
+
+# END STRING TABLE
+
+
+
+
+if [ -z "\$LANG" ]; then
+   LANG=\$KYDEF_LOCALE
+   export LANG
+fi
+
+if [ "\$LC_ALL" = "C" ]; then
+   echo "\$LC_ALL_IS_C1"
+   echo "\$LC_ALL_IS_C2 \$KYDEF_LOCALE."
+   LC_ALL=\$KYDEF_LOCALE
+   export LC_ALL
+fi
+
+if [ ! -d "$KHOME" ]; then
+  mkdir $KHOME
+  
+  
+cat <<__EOF >$KHOME/bcb69rc
+[Globals]
+DelphiRoot=/usr/share/kylix3_open
+
+[Library]
+Package DPL Output=
+Package DCP Output=
+Package Search Path=
+Search Path=\$(BCB)/lib:\$(BCB)/bin
+Browsing Path=\$(BCB)/source/clx:\$(BCB)/source/rtl/linux:\$(BCB)/source/rtl/sys:\$(BCB)/source/rtl/common:\$(BCB)/source/rtl/sys/unwinder:\$(BCB)/source/rtle
+
+[Known IDE Packages]
+/usr/lib/bplbcbide.so.6.9=Borland BCB IDE Package
+/usr/lib/bplbcbclxide.so.6.9=Borland BCB CLX IDE Package
+/usr/lib/bplclxdesigner.so.6.9=Borland Kylix CLX Designer Package
+
+[Known Packages]
+/usr/lib/dclstd.so.6.9=Borland Standard Component Package
+/usr/lib/bplHelpViewers.so.6.9=Borland Help Viewer Package
+
+
+[Palette]
+$PALETTE_STANDARD=
+$PALETTE_ADDITIONAL=
+$PALETTE_COMMON_CTRLS=
+$PALETTE_SYSTEM=
+$PALETTE_DIALOGS=
+
+[Palette Defaults]
+$PALETTE_STANDARD=
+$PALETTE_ADDITIONAL=
+$PALETTE_COMMON_CTRLS=
+$PALETTE_SYSTEM=
+$PALETTE_DIALOGS=
+
+[Debugging]
+
+[Help]
+WinHelpPath=/usr/share/kylix3_open/help
+
+__EOF
+
+
+
+cat <<__EOF >$KHOME/delphi69rc
+[Globals]
+DelphiRoot=/usr/share/kylix3_open
+
+[Library]
+Package DPL Output=
+Package DCP Output=
+Package Search Path=
+Search Path=\$(DELPHI)/lib:\$(DELPHI)/bin
+Browsing Path=\$(DELPHI)/source/clx:\$(DELPHI)/source/rtl/linux:\$(DELPHI)/source/rtl/sys:\$(DELPHI)/source/rtl/common:\$(DELPHI)/source/rtl/sys/unwinder
+
+[Known IDE Packages]
+/usr/lib/bpldelphide.so.6.9=Borland Delphi IDE Package
+/usr/lib/bpldelphiclxide.so.6.9=Borland Delphi CLX IDE Package
+/usr/lib/bplclxdesigner.so.6.9=Borland Kylix CLX Designer Package
+
+[Known Packages]
+/usr/lib/dclstd.so.6.9=Borland Standard Component Package
+/usr/lib/bplHelpViewers.so.6.9=Borland Help Viewer Package
+
+[Palette]
+$PALETTE_STANDARD=
+$PALETTE_ADDITIONAL=
+$PALETTE_COMMON_CTRLS=
+$PALETTE_SYSTEM=
+$PALETTE_DIALOGS=
+
+[Palette Defaults]
+$PALETTE_STANDARD=
+$PALETTE_ADDITIONAL=
+$PALETTE_COMMON_CTRLS=
+$PALETTE_SYSTEM=
+$PALETTE_DIALOGS=
+
+[Debugging]
+
+[Help]
+WinHelpPath=/usr/share/kylix3_open/help
+
+__EOF
+
+
+
+cat <<__EOF >> $KHOME/bcb69rc
+[\Tools\Text Files (no tool)]
+Title=Text Files (no tool)
+DefaultExt=*.txt;*.html;*.wml;*.xsl
+OtherExt=
+Command=
+GeneratedExt=
+Filter=<None>
+__EOF
+
+cat <<__EOF > $KHOME/debug69rc
+[Evaluators]
+comp32p.so=1
+libdcc.so.6.9=0
+__EOF
+
+
+
+
+
+
+
+
+
+
+# move the delphi.dci and bcb.dci files into .borland
+if [ ! -e $KHOME/delphi69dci ]; then
+    cp $KDIR/bin/delphi.dci $KHOME/delphi69dci
+fi
+if [ ! -e $KHOME/bcb69dci ]; then
+    cp $KDIR/bin/bcb.dci $KHOME/bcb69dci
+fi
+
+
+
+#rm -f $SETUP_INSTALLPATH/bin/delphi.dci
+
+# move the delphi69upg files into .borland
+if [ ! -e $KHOME/delphi69upg ]; then
+    cp $KDIR/bin/delphi69upg $KHOME
+fi
+
+
+#rm -f $KDIR/bin/delphi69upg
+
+# move the delphi69dmt and bcb69dmt files into .borland
+if [ ! -e $KHOME/delphi69dmt ]; then
+    cp $KDIR/bin/delphi69dmt $KHOME/
+fi
+if [ ! -e $KHOME/bcb69dmt ]; then
+    cp $KDIR/bin/bcb69dmt $KHOME/
+fi
+
+
+
+#rm -f $SETUP_INSTALLPATH/bin/delphi69dmt
+#rm -f $SETUP_INSTALLPATH/bin/bcb69dmt
+
+#move the incfiles.dat file into .borland
+if [ ! -e $KHOME/incfiles.dat ]; then
+	cp $KDIR/bin/incfiles.dat $KHOME
+fi
+
+#rm -f $SETUP_INSTALLPATH/bin/incfiles.dat
+
+# make the delphi.dro file
+cat <<EOF > $KHOME/.tmp
+[Repository Pages]
+$PALETTE_FORMS=
+$PALETTE_DIALOGS=
+$PALETTE_PROJECTS=
+
+[$KDIR/objrepos/clxokcancl1]
+Type=FormTemplate
+Name=$FORMT_STDDLGH_NAME
+Page=$FORMT_STDDLGH_PAGE
+Icon=$KDIR/objrepos/clxokcancl1.ico
+Description=$FORMT_STDDLGH_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[$KDIR/objrepos/clxokcnhlp1]
+Type=FormTemplate
+Name=$FORMT_DLGWHLPH_NAME
+Page=$FORMT_DLGWHLPH_PAGE
+Icon=$KDIR/objrepos/clxokcnhlp1.ico
+Description=$FORMT_DLGWHLPH_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=$KDIR/objrepos/clxokcancl1
+Designer=xfm
+
+[$KDIR/objrepos/clxokcancl2]
+Type=FormTemplate
+Name=$FORMT_STDDLGV_NAME
+Page=$FORMT_STDDLGV_PAGE
+Icon=$KDIR/objrepos/clxokcancl2.ico
+Description=$FORMT_STDDLGV_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[$KDIR/objrepos/clxokcnhlp2]
+Type=FormTemplate
+Name=$FORMT_DLGWHLPV_NAME
+Page=$FORMT_DLGWHLPV_PAGE
+Icon=$KDIR/objrepos/clxokcnhlp2.ico
+Description=$FORMT_DLGWHLPV_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=$KDIR/objrepos/clxokcancl2
+Designer=xfm
+
+[$KDIR/objrepos/clxabout]
+Type=FormTemplate
+Name=$FORMT_ABOUT_NAME
+Page=$FORMT_ABOUT_PAGE
+Icon=$KDIR/objrepos/clxabout.ico
+Description=$FORMT_ABOUT_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[$KDIR/objrepos/clxtabpgdlg]
+Type=FormTemplate
+Name=$FORMT_TABPG_NAME
+Page=$FORMT_TABPG_PAGE
+Icon=$KDIR/objrepos/clxtabpgdlg.ico
+Description=$FORMT_TABPG_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[$KDIR/objrepos/clxpassword]
+Type=FormTemplate
+Name=$FORMT_PASSWD_NAME
+Page=$FORMT_PASSWD_PAGE
+Icon=$KDIR/objrepos/clxpassword.ico
+Description=$FORMT_PASSWD_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[$KDIR/objrepos/clxduallist]
+Type=FormTemplate
+Name=$FORMT_DUOLIST_NAME
+Page=$FORMT_DUOLIST_PAGE
+Icon=$KDIR/objrepos/clxduallist.ico
+Description=$FORMT_DUOLIST_DESCRIP
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+
+[$KDIR/objrepos/mdiapp/CLXMDIApp]
+Type=ProjectTemplate
+Name=$PROJT_MDIAPP_NAME
+Page=$PROJT_MDIAPP_PAGE
+Icon=$KDIR/objrepos/mdiapp/CLXMDIApp.ico
+Description=$PROJT_MDIAPP_DESCRIP
+Author=Borland
+DefaultProject=0
+Designer=xfm
+
+EOF
+
+cat $KHOME/.tmp >> $KHOME/delphi69dro
+cat $KHOME/.tmp >> $KHOME/bcb69dro
+rm -f $KHOME/.tmp
+
+  
+  
+  kreg
+fi
+
+$KBIN/kylixpath
+$KBIN/`echo $0 | sed 's+.*/++'` $@

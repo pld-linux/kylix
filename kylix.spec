@@ -60,8 +60,6 @@ install -d $RPM_BUILD_ROOT/usr/local/etc
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/kylix
 install -d $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
 
-unset DISPLAY
-
 cat %{SOURCE1} | sed "s:@INSTALL@:$RPM_BUILD_ROOT%{_kylixdata}:" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
 
 ./setup.sh -m -a -n < response

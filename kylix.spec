@@ -1,7 +1,12 @@
+#TODO:
+# - kde applnk to help system does not work (have $RPM_BUILD_ROOT path inside)
+# - more subpackages: -bcb -delphi -bcb-ide -delphi-ide -doc
+# - spec cleanup required...
+
 Summary:	Kylix 3 Open Edition
 Name:		kylix3_open
 Version:	1.0
-Release:	4
+Release:	5
 License:	non-distributable
 Group:		X11/Development/Tools
 Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}.tar.gz
@@ -81,6 +86,8 @@ rm ja_JP.eucjp
 
 mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/*.so.* $RPM_BUILD_ROOT/%{_libdir}
 mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/*.so $RPM_BUILD_ROOT/%{_libdir}
+mv $RPM_BUILD_ROOT/%{_libdir}/*ilink*.so* $RPM_BUILD_ROOT/%{_kylixdata}/bin
+
 cd $RPM_BUILD_ROOT/%{_libdir}
 #cd $RPM_BUILD_ROOT/%{_kylixdata}/bin
 
@@ -167,11 +174,12 @@ ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bc++.msg
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcpp.msg 
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/dcc
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/hyperhelp
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/ilink.msg
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/kreg
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcb
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/delphi
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcblin
+ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/ilink
+ln -sf %{_kylixdata}/bin/ilink.msg $RPM_BUILD_ROOT/usr/bin/ilink.msg
 
 
 # kylixpath
@@ -296,7 +304,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/bplvcl*.so*
 %attr(755,root,root) %{_libdir}/comp32p*.so*
 %attr(755,root,root) %{_libdir}/dcl*.so*
-%attr(755,root,root) %{_libdir}/ilink*.so*
 %attr(755,root,root) %{_libdir}/lib[acdgiklmorstuwx]*.so*
 %attr(755,root,root) %{_libdir}/libboredit*.so*
 %attr(755,root,root) %{_libdir}/libborkbd*.so*
@@ -350,10 +357,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_kylixdata}/bin/bcpp
 %attr(755,root,root) %{_kylixdata}/bin/bcpp.msg
 %attr(755,root,root) %{_kylixdata}/bin/bpr2mak
-
 %attr(755,root,root) %{_kylixdata}/bin/dcc
 %attr(755,root,root) %{_kylixdata}/bin/ilink
 %attr(755,root,root) %{_kylixdata}/bin/ilink.msg
+%attr(755,root,root) %{_kylixdata}/bin/ilink.so
+%attr(755,root,root) %{_kylixdata}/bin/libilinkintf*.so*
 %attr(755,root,root) %{_kylixdata}/bin/kreg
 %attr(755,root,root) %{_kylixdata}/bin/resbind
 %attr(755,root,root) %{_kylixdata}/bin/bcblin

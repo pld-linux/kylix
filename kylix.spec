@@ -1,7 +1,7 @@
 Summary:	Kylix 3 Open Edition
 Name:		kylix3_open
 Version:	1.0
-Release:	3
+Release:	4
 License:	non-distributable
 Group:		X11/Development/Tools
 Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}.tar.gz
@@ -10,13 +10,25 @@ Source2:	%{name}.wrapper
 Source3:	%{name}.dro
 Patch0:		%{name}-setup.patch
 URL:		http://www.borland.com/kylix/kylix3open.shtml
+Requires:	%{name}-libs = %{version}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_kylixdata	/usr/share/kylix3_open
 
 %description
 Kylix
 
 %description -l pl
 Kylix
+
+%package libs
+Summary:	Kylix libraries
+Group:		Development/Libraries
+License:	redistributable
+
+%description libs
+Kylix libraries
+
 
 %prep
 %setup -q -n %{name}
@@ -32,50 +44,51 @@ install -d $RPM_BUILD_ROOT/usr/lib
 install -d $RPM_BUILD_ROOT/usr/bin
 install -d $RPM_BUILD_ROOT/home/bin
 install -d $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
-install -d $RPM_BUILD_ROOT/usr/share/kylix3_open
+install -d $RPM_BUILD_ROOT/%{_kylixdata}
 install -d $RPM_BUILD_ROOT/usr/local/etc
 install -d $RPM_BUILD_ROOT/etc/kylix
 install -d $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
 
-cat %{SOURCE1} | sed "s~@INSTALL@~$RPM_BUILD_ROOT/usr/share/kylix3_open~" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
+cat %{SOURCE1} | sed "s~@INSTALL@~$RPM_BUILD_ROOT/%{_kylixdata}~" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
 
 ./setup.sh -m -a -n < response
-#cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s%\$SETUP_INSTALLPATH%$RPM_BUILD_ROOT/usr/share/kylix3_open%g > ./main.sh
+#cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s%\$SETUP_INSTALLPATH%$RPM_BUILD_ROOT/%{_kylixdata}%g > ./main.sh
 cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s~\$inimerge.*~~ > ./main.sh
 chmod +x ./main.sh
 ./main.sh
 
 # FIXME:
-#cp -r $RPM_BUILD_ROOT/usr/share/kylix3_open/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
-#ln -s $RPM_BUILD_ROOT/usr/share/kylix3_open/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
+#cp -r $RPM_BUILD_ROOT/%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
+#ln -s $RPM_BUILD_ROOT/%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
 
 oldpath=`pwd`
-cd $RPM_BUILD_ROOT/usr/share/kylix3_open/help/app-defaults/
+cd $RPM_BUILD_ROOT/%{_kylixdata}/help/app-defaults/
 rm ja_JP.eucjp
 # FIXME: I don't know how to add symlinks to rpm
 #ln -s ja_JP.eucJP ja_JP.eucjp
 
-cd $RPM_BUILD_ROOT/usr/share/kylix3_open/help/lib/locale/
+cd $RPM_BUILD_ROOT/%{_kylixdata}/help/lib/locale/
 rm ja_JP.eucjp
 # FIXME: I don't know how to add symlinks to rpm
 #ln -s ja_JP.eucJP ja_JP.eucjp
 
 # libraries
-# Create bin/libborcrtl.so file
-cat << EOF > $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/libborcrtl.so
-GROUP ( $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/libborcrtl.so.1 $RPM_BUILD_ROOT/usr/share/kylix3_open/lib/libborcrtl_nonshared.a )
-EOF
-chmod a+x $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/libborcrtl.so
+# Create bin/libborcrtl.so file - this one is unneded - i think so... (pascalek)
+#cat << EOF > $RPM_BUILD_ROOT/%{_libdir}/libborcrtl.so
+#GROUP ( %{_kylixdata}/lib/libborcrtl.so.1.0 %{_kylixdata}/lib/libborcrtl_nonshared.a )
+#EOF
+#??? chmod a+x $RPM_BUILD_ROOT/%{_kylixdata}/bin/libborcrtl.so
 
-mv $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/*.so.* $RPM_BUILD_ROOT/usr/lib
-mv $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/*.so $RPM_BUILD_ROOT/usr/lib
-cd $RPM_BUILD_ROOT/usr/lib
-#cd $RPM_BUILD_ROOT/usr/share/kylix3_open/bin
+mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/*.so.* $RPM_BUILD_ROOT/%{_libdir}
+mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/*.so $RPM_BUILD_ROOT/%{_libdir}
+cd $RPM_BUILD_ROOT/%{_libdir}
+#cd $RPM_BUILD_ROOT/%{_kylixdata}/bin
 
 for k in *6.9.0* ; do k2=`echo $k | sed s/6.9.0\$/6.9/` ; if ! [ -f $k2 ] ; then ln -s $k $k2 ; fi ; done
+ln -sf libborqt-6.9.0-qt2.3.so libborqt-6.9-qt2.3.so
+ln -sf libqtintf-6.9.0-qt2.3.so libqtintf-6.9-qt2.3.so
 ln -sf libdbk.so.1.9 libdbk.so.1
 ln -sf libqt.so.2.3.0 libqt.so.2
-ln -sf libborunwind.so.6.0 libborunwind.so.6
 ln -sf librpcrt4.borland.so.1.0 librpcrt4.borland.so
 ln -sf libadvapi32.borland.so.1.0 libadvapi32.borland.so
 ln -sf libwine_unicode.borland.so.1.0 libwine_unicode.borland.so
@@ -105,29 +118,29 @@ ln -sf libwininet.borland.so.1.0 libwininet.borland.so
 ln -sf libkernel32.borland.so.1.0 libkernel32.borland.so
 ln -sf libwineps.borland.so.1.0 libwineps.borland.so
 ln -sf libshlwapi.borland.so.1.0 libshlwapi.borland.so
-ln -sf libborunwind.so.6 libborunwind.so
-
+ln -sf libborunwind.so.6.0 libborunwind.so.6
 
 # /etc directory
 cd $oldpath
 
 cp -p $RPM_BUILD_ROOT/home/.borland/.borlandrc $RPM_BUILD_ROOT/etc/kylix/borlandrc.conf
-cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/delphi69upg $RPM_BUILD_ROOT/etc/kylix/delphi69upg.conf
-cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/delphi.dci $RPM_BUILD_ROOT/etc/kylix/delphi69dci.conf
-cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/bcb.dci $RPM_BUILD_ROOT/etc/kylix/bcb69dci.conf
-cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/delphi69dmt $RPM_BUILD_ROOT/etc/kylix/delphi69dmt.conf
-cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/bcb69dmt $RPM_BUILD_ROOT/etc/kylix/bcb69dmt.conf
-cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/incfiles.dat $RPM_BUILD_ROOT/etc/kylix/incfilesdat.conf
+cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/delphi69upg $RPM_BUILD_ROOT/etc/kylix/delphi69upg.conf
+cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/delphi.dci $RPM_BUILD_ROOT/etc/kylix/delphi69dci.conf
+cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/bcb.dci $RPM_BUILD_ROOT/etc/kylix/bcb69dci.conf
+cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/delphi69dmt $RPM_BUILD_ROOT/etc/kylix/delphi69dmt.conf
+cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/bcb69dmt $RPM_BUILD_ROOT/etc/kylix/bcb69dmt.conf
+cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/incfiles.dat $RPM_BUILD_ROOT/etc/kylix/incfilesdat.conf
 
 cat %{SOURCE3} > $RPM_BUILD_ROOT/etc/kylix/delphi69dro.conf
 cat %{SOURCE3} > $RPM_BUILD_ROOT/etc/kylix/bcb69dro.conf
 
+mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/dbkexe* $RPM_BUILD_ROOT/%{_libdir}
 
 # Create dcc.cfg file
 cat <<EOF > $RPM_BUILD_ROOT/etc/kylix/dcc.conf
---msgcatalog=/usr/share/kylix3_open/bin
--u/usr/share/kylix3_open/lib
--o/usr/share/kylix3_open/bin
+--msgcatalog=/%{_kylixdata}/bin
+-u/%{_kylixdata}/lib
+-o/%{_kylixdata}/bin
 EOF
 
 # Create bcc.cfg file
@@ -136,13 +149,13 @@ libgcc_fname=`gcc -print-libgcc-file-name`
 libgcc_dir=`dirname $libgcc_fname`
 
 cat << EOF > $RPM_BUILD_ROOT/etc/kylix/bccrc
--I"/usr/share/kylix3_open/include/stlport":"/usr/share/kylix3_open/include":"/usr/share/kylix3_open/include/vcl":"/usr/include"
--L"/usr/share/kylix3_open/lib/obj":"/usr/share/kylix3_open/lib":"/usr/share/kylix3_open/lib/release":"/usr/lib":"/lib":"/usr/X11R6/lib":"/usr/share/kylix3_open/bin":"$libgcc_dir"
+-I"/%{_kylixdata}/include/stlport":"/%{_kylixdata}/include":"/%{_kylixdata}/include/vcl":"/usr/include"
+-L"/%{_kylixdata}/lib/obj":"/%{_kylixdata}/lib":"/%{_kylixdata}/lib/release":"%{_libdir}":"/lib":"/usr/X11R6/lib":"/%{_kylixdata}/bin":"$libgcc_dir"
 EOF
 
 # Create ilinkrc.cfg file
 cat << EOF > $RPM_BUILD_ROOT/etc/kylix/ilinkrc
--L"/usr/share/kylix3_open/lib/obj":"/usr/share/kylix3_open/lib":"/usr/share/kylix3_open/lib/release":"/usr/lib":"/lib":"/usr/X11R6/lib":"/usr/share/kylix3_open/bin"
+-L"/%{_kylixdata}/lib/obj":"/%{_kylixdata}/lib":"/%{_kylixdata}/lib/release":"/usr/lib":"/lib":"/usr/X11R6/lib":"/%{_kylixdata}/bin"
 EOF
 
 
@@ -162,10 +175,10 @@ ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcblin
 
 
 # kylixpath
-cat > $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/kylixpath <<EOF
+cat > $RPM_BUILD_ROOT/%{_kylixdata}/bin/kylixpath <<EOF
 #!/bin/bash
 
-prepath=/usr/share/kylix3_open
+prepath=/%{_kylixdata}
 if  [ -n "\$1" ]; then
     prepath=\$1
 fi
@@ -183,7 +196,7 @@ h=help
 hl=help/lib
 
 path_found=
-for kpath in \$kylixpath\$h \$kylixpath\$l \$kylixpath\$b; do
+for kpath in \$kylixpath/\$h \$kylixpath/\$l \$kylixpath/\$b; do
    for ppath in \`echo \$PATH | sed s/:/\ /g\`; do
       if [ "\$kpath" = "\$ppath" ]; then
          path_found="Y"
@@ -196,7 +209,7 @@ done
 
 locale=\${LC_ALL:-\${LC_CTYPE:-\${LANG:-"C"}}}
 path_found=
-for kpath in \$kylixpath\$hl \$kylixpath\$hl/locale/\$locale \$kylixpath\$b; do
+for kpath in \$kylixpath/\$hl \$kylixpath/\$hl/locale/\$locale \$kylixpath/\$b; do
    for ppath in \`echo \$LD_LIBRARY_PATH | sed s/:/\ /g\`; do
       if [ "\$kpath" = "\$ppath" ]; then
          path_found="Y"
@@ -207,13 +220,13 @@ for kpath in \$kylixpath\$hl \$kylixpath\$hl/locale/\$locale \$kylixpath\$b; do
    fi
 done
 
-XPPATH="\$kylixpath\$h/xprinter"
+XPPATH="\$kylixpath/\$h/xprinter"
 
-HHHOME="\$kylixpath\$h"
+HHHOME="\$kylixpath/\$h"
 
-XAPPLRESDIR="\$kylixpath\$h/app-defaults"
+XAPPLRESDIR="\$kylixpath/\$h/app-defaults"
 
-NLSPATH="\$kylixpath\$hl/locale/%L/%N.cat"
+NLSPATH="\$kylixpath/\$hl/locale/%L/%N.cat"
 
 export PATH
 export LD_LIBRARY_PATH
@@ -241,7 +254,7 @@ export NLSPATH
 
 EOF
 
-cp -f $RPM_BUILD_ROOT/usr/share/kylix3_open/shortcuts/gnome/* $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
+cp -f $RPM_BUILD_ROOT/%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
 cat > $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix/.directory << EOF
 [Desktop Entry]
 Name=Kylix
@@ -258,13 +271,9 @@ cd $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
 for k in *.desktop
 do
   cat $k | sed "s+$RPM_BUILD_ROOT++" > tmp
-  mv tmp $k
-  cat $k | sed "s%/usr/share/kylix3_open/bin/registerkylix%/usr/bin/kreg%" > tmp
-  mv tmp $k
-  cat $k | sed "s%/usr/share/kylix3_open/bin/startbcb%/usr/bin/bcblin%" > tmp
-  mv tmp $k
-  cat $k | sed "s%/usr/share/kylix3_open/bin/startdelphi%/usr/bin/delphi%" > tmp
-  mv tmp $k
+  cat tmp | sed "s%/%{_kylixdata}/bin/registerkylix%/usr/bin/kreg%" > $k
+  cat $k | sed "s%/%{_kylixdata}/bin/startbcb%/usr/bin/bcblin%" > tmp
+  cat tmp | sed "s%/%{_kylixdata}/bin/startdelphi%/usr/bin/delphi%" > $k
 done
 
 cd $oldpath
@@ -272,92 +281,129 @@ cd $oldpath
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
-%preun
-
-%post
-/sbin/ldconfig
-
-%postun
-
-
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
 %doc README
-%attr(755,root,root) /usr/lib/*.so*
-#%attr(755,root,root) /usr/share/kylix3_open/bin/*.so*
+
+%attr(755,root,root) %{_libdir}/bpl[Hcd]*.so*
+%attr(755,root,root) %{_libdir}/bplbcb*.so*
+%attr(755,root,root) %{_libdir}/bplvcl*.so*
+%attr(755,root,root) %{_libdir}/comp32p*.so*
+%attr(755,root,root) %{_libdir}/dcl*.so*
+%attr(755,root,root) %{_libdir}/ilink*.so*
+%attr(755,root,root) %{_libdir}/lib[acdgiklmorstuwx]*.so*
+%attr(755,root,root) %{_libdir}/libboredit*.so*
+%attr(755,root,root) %{_libdir}/libborkbd*.so*
+%attr(755,root,root) %{_libdir}/libbortoken*.so*
+%attr(755,root,root) %{_libdir}/libversion*.so*
+%attr(755,root,root) %{_libdir}/winhelp*.so*
+%attr(755,root,root) %{_libdir}/dbkexe*
 
 %config(noreplace) /etc/kylix/*
 /usr/local/etc
 /usr/X11R6/share/applnk/Development/Kylix
 
-%attr(755,root,root) /usr/bin/*
+%attr(755,root,root) %{_bindir}/*
 
-/usr/share/kylix3_open/*.xpm
-/usr/share/kylix3_open/*.slip
-/usr/share/kylix3_open/*.txt
-/usr/share/kylix3_open/DEPLOY
-/usr/share/kylix3_open/INSTALL
-/usr/share/kylix3_open/PREINSTALL
+%{_kylixdata}/*.xpm
+%{_kylixdata}/*.slip
+%{_kylixdata}/*.txt
+%{_kylixdata}/DEPLOY
+%{_kylixdata}/INSTALL
+%{_kylixdata}/PREINSTALL
+%{_kylixdata}/source
+%{_kylixdata}/shortcuts
+%{_kylixdata}/objrepos
+%{_kylixdata}/include
+%{_kylixdata}/images
+%{_kylixdata}/examples
+%{_kylixdata}/documentation
+%{_kylixdata}/lib
 
+%dir %{_kylixdata}/help/
+%dir %{_kylixdata}/help/bin
+%dir %{_kylixdata}/help/lib
+%attr(755,root,root) %{_kylixdata}/help/bin/*
+%attr(755,root,root) %{_kylixdata}/help/hyperhelp.sh
+%attr(755,root,root) %{_kylixdata}/help/lib/*.so
+%{_kylixdata}/help/*.cnt
+%{_kylixdata}/help/*.fts
+%{_kylixdata}/help/*.hlp
+%{_kylixdata}/help/*.txt
+%{_kylixdata}/help/*.als
+%{_kylixdata}/help/*.ftg
+%{_kylixdata}/help/.hyperhelprc
+%{_kylixdata}/help/app-defaults
+%{_kylixdata}/help/stlport
+%{_kylixdata}/help/xprinter
+%{_kylixdata}/help/lib/locale
 
-/usr/share/kylix3_open/source
-/usr/share/kylix3_open/shortcuts
-/usr/share/kylix3_open/objrepos
-/usr/share/kylix3_open/lib
-/usr/share/kylix3_open/include
-/usr/share/kylix3_open/images
-/usr/share/kylix3_open/examples
-/usr/share/kylix3_open/documentation
-# FIXME
-/usr/share/kylix3_open/help
+%attr(755,root,root) %{_kylixdata}/bin/kylixpath
+%attr(755,root,root) %{_kylixdata}/bin/bc++
+%attr(755,root,root) %{_kylixdata}/bin/bc++.msg
+%attr(755,root,root) %{_kylixdata}/bin/bcpp
+%attr(755,root,root) %{_kylixdata}/bin/bcpp.msg
+%attr(755,root,root) %{_kylixdata}/bin/bpr2mak
 
-%attr(755,root,root) /usr/share/kylix3_open/bin/kylixpath
-%attr(755,root,root) /usr/share/kylix3_open/bin/bc++
-%attr(755,root,root) /usr/share/kylix3_open/bin/bc++.msg
-%attr(755,root,root) /usr/share/kylix3_open/bin/bcpp
-%attr(755,root,root) /usr/share/kylix3_open/bin/bcpp.msg
-%attr(755,root,root) /usr/share/kylix3_open/bin/bpr2mak
-%attr(755,root,root) /usr/share/kylix3_open/bin/dbkexe-1.9
-%attr(755,root,root) /usr/share/kylix3_open/bin/dcc
-%attr(755,root,root) /usr/share/kylix3_open/bin/ilink
-%attr(755,root,root) /usr/share/kylix3_open/bin/ilink.msg
-%attr(755,root,root) /usr/share/kylix3_open/bin/kreg
-%attr(755,root,root) /usr/share/kylix3_open/bin/resbind
-%attr(755,root,root) /usr/share/kylix3_open/bin/bcblin
-%attr(755,root,root) /usr/share/kylix3_open/bin/convert
-%attr(755,root,root) /usr/share/kylix3_open/bin/delphi
-%attr(755,root,root) /usr/share/kylix3_open/bin/transdlg
-%attr(755,root,root) /usr/share/kylix3_open/bin/wineserver
+%attr(755,root,root) %{_kylixdata}/bin/dcc
+%attr(755,root,root) %{_kylixdata}/bin/ilink
+%attr(755,root,root) %{_kylixdata}/bin/ilink.msg
+%attr(755,root,root) %{_kylixdata}/bin/kreg
+%attr(755,root,root) %{_kylixdata}/bin/resbind
+%attr(755,root,root) %{_kylixdata}/bin/bcblin
+%attr(755,root,root) %{_kylixdata}/bin/convert
+%attr(755,root,root) %{_kylixdata}/bin/delphi
+%attr(755,root,root) %{_kylixdata}/bin/transdlg
+%attr(755,root,root) %{_kylixdata}/bin/wineserver
 
+%{_kylixdata}/bin/HTMLlat1.ent
+%{_kylixdata}/bin/HTMLspecial.ent
+%{_kylixdata}/bin/HTMLsymbol.ent
+%{_kylixdata}/bin/bcb.dci
+%{_kylixdata}/bin/bcb69dmt
+%{_kylixdata}/bin/countrylist.txt
+%{_kylixdata}/bin/default.gmk
+%{_kylixdata}/bin/deflib.gmk
+%{_kylixdata}/bin/delphi.dci
+%{_kylixdata}/bin/delphi69dmt
+%{_kylixdata}/bin/delphi69upg
+%{_kylixdata}/bin/denmark.dem
+%{_kylixdata}/bin/france.dem
+%{_kylixdata}/bin/germany.dem
+%{_kylixdata}/bin/incfiles.dat
+%{_kylixdata}/bin/italy.dem
+%{_kylixdata}/bin/japan.dem
+%{_kylixdata}/bin/korea.dem
+%{_kylixdata}/bin/netherld.dem
+%{_kylixdata}/bin/norway.dem
+%{_kylixdata}/bin/phone.txt
+%{_kylixdata}/bin/spain.dem
+%{_kylixdata}/bin/statelist.txt
+%{_kylixdata}/bin/sweden.dem
+%{_kylixdata}/bin/taiwan.dem
+%{_kylixdata}/bin/uk.dem
+%{_kylixdata}/bin/us.dem
+%{_kylixdata}/bin/version.txt
 
-%attr(644,root,root) /usr/share/kylix3_open/bin/HTMLlat1.ent
-%attr(644,root,root) /usr/share/kylix3_open/bin/HTMLspecial.ent
-%attr(644,root,root) /usr/share/kylix3_open/bin/HTMLsymbol.ent
-%attr(644,root,root) /usr/share/kylix3_open/bin/bcb.dci
-%attr(644,root,root) /usr/share/kylix3_open/bin/bcb69dmt
-%attr(644,root,root) /usr/share/kylix3_open/bin/countrylist.txt
-%attr(644,root,root) /usr/share/kylix3_open/bin/default.gmk
-%attr(644,root,root) /usr/share/kylix3_open/bin/deflib.gmk
-%attr(644,root,root) /usr/share/kylix3_open/bin/delphi.dci
-%attr(644,root,root) /usr/share/kylix3_open/bin/delphi69dmt
-%attr(644,root,root) /usr/share/kylix3_open/bin/delphi69upg
-%attr(644,root,root) /usr/share/kylix3_open/bin/denmark.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/france.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/germany.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/incfiles.dat
-%attr(644,root,root) /usr/share/kylix3_open/bin/italy.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/japan.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/korea.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/netherld.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/norway.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/phone.txt
-%attr(644,root,root) /usr/share/kylix3_open/bin/spain.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/statelist.txt
-%attr(644,root,root) /usr/share/kylix3_open/bin/sweden.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/taiwan.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/uk.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/us.dem
-%attr(644,root,root) /usr/share/kylix3_open/bin/version.txt
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/bplvisualclx.so*
+%attr(755,root,root) %{_libdir}/libqt.so*
+%attr(755,root,root) %{_libdir}/libqtintf-*
+%attr(755,root,root) %{_libdir}/libborqt-*
+%attr(755,root,root) %{_libdir}/libborunwind.so*
+%attr(755,root,root) %{_libdir}/libborstl.so*
+%attr(755,root,root) %{_libdir}/libborcrtl.so*
+
+#this one was not mentioned in DEPLOY file 
+#but IMVHO it ought to be...
+%attr(755,root,root) %{_libdir}/bplrtl.so*
+
+#and this one was :)
+#%attr(755,root,root) %{_libdir}/bplbaseclx.so*

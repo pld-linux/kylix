@@ -1,4 +1,5 @@
 #TODO:
+# - spec filename != Name
 # - kde applnk to help system does not work (have $RPM_BUILD_ROOT path inside)
 # - more subpackages: -bcb -delphi -bcb-ide -delphi-ide -doc
 # - spec cleanup required...
@@ -17,7 +18,7 @@ Source3:	%{name}.dro
 Patch0:		%{name}-setup.patch
 NoSource:	0
 URL:		http://www.borland.com/kylix/open/
-Requires:	%{name}-libs = %{version}
+Requires:	%{name}-libs = %{version}-%{release}
 Requires:	compat-libstdc++-2.9
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -46,19 +47,18 @@ Biblioteki Kyliksa.
 install %{SOURCE1} .
 %patch0 -p1
 
-%build
-
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_libdir}
 install -d $RPM_BUILD_ROOT%{_bindir}
+# WTF???
 install -d $RPM_BUILD_ROOT/home/bin
 install -d $RPM_BUILD_ROOT%{_datadir}/doc/kylix3_open-1.0
 install -d $RPM_BUILD_ROOT%{_kylixdata}
+# WTF???
 install -d $RPM_BUILD_ROOT/usr/local/etc
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/kylix
-install -d $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix
+install -d $RPM_BUILD_ROOT%{_desktopdir}
 
 cat %{SOURCE1} | sed "s:@INSTALL@:$RPM_BUILD_ROOT%{_kylixdata}:" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
 
@@ -266,20 +266,10 @@ export NLSPATH
 
 EOF
 
-cp -f $RPM_BUILD_ROOT%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix
-cat > $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix/.directory << EOF
-[Desktop Entry]
-Name=Kylix
-Name[pl]=Kylix
-Comment=Kylix
-Comment[pl]=Kylix
-#Icon=
-Type=Directory
-EOF
+cp -f $RPM_BUILD_ROOT%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT%{_desktopdir}
 
 oldpath=`pwd`
-cd $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix
-
+cd $RPM_BUILD_ROOT%{_desktopdir}
 for k in *.desktop
 do
 	cat $k | sed "s+$RPM_BUILD_ROOT++" > tmp
@@ -316,9 +306,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/winhelp*.so*
 %attr(755,root,root) %{_libdir}/dbkexe*
 
-%config(noreplace) %{_sysconfdir}/kylix/*
-/usr/local/etc
-%{_desktopdir}/Development/Kylix
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/kylix/*
+/usr/local/etc/*
+%{_desktopdir}/*.desktop
 
 %attr(755,root,root) %{_bindir}/*
 
@@ -337,12 +327,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_kylixdata}/documentation
 %{_kylixdata}/lib
 
-%dir %{_kylixdata}/help/
+%dir %{_kylixdata}/help
 %dir %{_kylixdata}/help/bin
-%dir %{_kylixdata}/help/lib
 %attr(755,root,root) %{_kylixdata}/help/bin/*
 %attr(755,root,root) %{_kylixdata}/help/hyperhelp.sh
+%dir %{_kylixdata}/help/lib
 %attr(755,root,root) %{_kylixdata}/help/lib/*.so
+%{_kylixdata}/help/lib/locale
 %{_kylixdata}/help/*.cnt
 %{_kylixdata}/help/*.fts
 %{_kylixdata}/help/*.hlp
@@ -353,7 +344,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_kylixdata}/help/app-defaults
 %{_kylixdata}/help/stlport
 %{_kylixdata}/help/xprinter
-%{_kylixdata}/help/lib/locale
 
 %attr(755,root,root) %{_kylixdata}/bin/kylixpath
 %attr(755,root,root) %{_kylixdata}/bin/bc++

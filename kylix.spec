@@ -7,7 +7,7 @@ Summary:	Kylix 3 Open Edition
 Summary(pl):	Kylix 3 - Wydanie otwarte
 Name:		kylix3_open
 Version:	1.0
-Release:	5
+Release:	6
 License:	non-distributable
 Group:		X11/Development/Tools
 Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}.tar.gz
@@ -18,6 +18,7 @@ Patch0:		%{name}-setup.patch
 NoSource:	0
 URL:		http://www.borland.com/kylix/open/
 Requires:	%{name}-libs = %{version}
+Requires:	compat-libstdc++-2.9
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_kylixdata	/usr/share/kylix3_open
@@ -170,7 +171,6 @@ cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/ilinkrc
 -L"%{_kylixdata}/lib/obj":"%{_kylixdata}/lib":"%{_kylixdata}/lib/release":"%{_libdir}":"/lib":"/usr/X11R6/lib":"%{_kylixdata}/bin"
 EOF
 
-
 ln -sf %{_sysconfdir}/kylix/borlandrc.conf $RPM_BUILD_ROOT/usr/local/etc
 
 # wrapper
@@ -186,22 +186,21 @@ ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcblin
 ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/ilink
 ln -sf %{_kylixdata}/bin/ilink.msg $RPM_BUILD_ROOT%{_bindir}/ilink.msg
 
-
 # kylixpath
 cat > $RPM_BUILD_ROOT%{_kylixdata}/bin/kylixpath <<EOF
 #!/bin/bash
 
 prepath=%{_kylixdata}
-if  [ -n "\$1" ]; then
-    prepath=\$1
+if [ -n "\$1" ]; then
+	prepath=\$1
 fi
 kylixpath=\$prepath/
 has_slash=\`expr "\$kylixpath" : '\(.*//\)'\`
 if [ -n "\$has_slash" ]
 then
-   kylixpath=\$prepath
+	kylixpath=\$prepath
 else
-   kylixpath=\$prepath/
+	kylixpath=\$prepath/
 fi
 b=bin
 l=lib
@@ -210,27 +209,27 @@ hl=help/lib
 
 path_found=
 for kpath in \$kylixpath/\$h \$kylixpath/\$l \$kylixpath/\$b; do
-   for ppath in \`echo \$PATH | sed s/:/\ /g\`; do
-      if [ "\$kpath" = "\$ppath" ]; then
-         path_found="Y"
-      fi
-   done
-   if [ -z "\$path_found" ]; then
-      PATH="\$kpath:\$PATH"
-   fi
+	for ppath in \`echo \$PATH | sed s/:/\ /g\`; do
+		if [ "\$kpath" = "\$ppath" ]; then
+			path_found="Y"
+		fi
+	done
+	if [ -z "\$path_found" ]; then
+		PATH="\$kpath:\$PATH"
+	fi
 done
 
 locale=\${LC_ALL:-\${LC_CTYPE:-\${LANG:-"C"}}}
 path_found=
 for kpath in \$kylixpath/\$hl \$kylixpath/\$hl/locale/\$locale \$kylixpath/\$b; do
-   for ppath in \`echo \$LD_LIBRARY_PATH | sed s/:/\ /g\`; do
-      if [ "\$kpath" = "\$ppath" ]; then
-         path_found="Y"
-      fi
-   done
-   if [ -z "\$path_found" ]; then
-      LD_LIBRARY_PATH="\$kpath:\$LD_LIBRARY_PATH"
-   fi
+	for ppath in \`echo \$LD_LIBRARY_PATH | sed s/:/\ /g\`; do
+		if [ "\$kpath" = "\$ppath" ]; then
+			path_found="Y"
+		fi
+	done
+	if [ -z "\$path_found" ]; then
+		LD_LIBRARY_PATH="\$kpath:\$LD_LIBRARY_PATH"
+	fi
 done
 
 XPPATH="\$kylixpath/\$h/xprinter"
@@ -283,10 +282,10 @@ cd $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
 
 for k in *.desktop
 do
-  cat $k | sed "s+$RPM_BUILD_ROOT++" > tmp
-  cat tmp | sed "s:%{_kylixdata}/bin/registerkylix:%{_bindir}/kreg:" > $k
-  cat $k | sed "s:%{_kylixdata}/bin/startbcb:%{_bindir}/bcblin:" > tmp
-  cat tmp | sed "s:%{_kylixdata}/bin/startdelphi:%{_bindir}/delphi:" > $k
+	cat $k | sed "s+$RPM_BUILD_ROOT++" > tmp
+	cat tmp | sed "s:%{_kylixdata}/bin/registerkylix:%{_bindir}/kreg:" > $k
+	cat $k | sed "s:%{_kylixdata}/bin/startbcb:%{_bindir}/bcblin:" > tmp
+	cat tmp | sed "s:%{_kylixdata}/bin/startdelphi:%{_bindir}/delphi:" > $k
 done
 
 cd $oldpath
@@ -294,10 +293,10 @@ cd $oldpath
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
+%post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-%post libs -p /sbin/ldconfig
+%post   libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
 %files

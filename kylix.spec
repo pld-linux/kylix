@@ -4,6 +4,7 @@
 # - spec cleanup required...
 
 Summary:	Kylix 3 Open Edition
+Summary(pl):	Kylix 3 - Wydanie otwarte
 Name:		kylix3_open
 Version:	1.0
 Release:	5
@@ -21,19 +22,22 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_kylixdata	/usr/share/kylix3_open
 
 %description
-Kylix
+Kylix.
 
 %description -l pl
-Kylix
+Kylix.
 
 %package libs
 Summary:	Kylix libraries
+Summary(pl):	Biblioteki Kyliksa
 Group:		Development/Libraries
 License:	redistributable
 
 %description libs
-Kylix libraries
+Kylix libraries.
 
+%description libs -l pl
+Biblioteki Kyliksa.
 
 %prep
 %setup -q -n %{name}
@@ -45,34 +49,34 @@ install %{SOURCE1} .
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/usr/lib
-install -d $RPM_BUILD_ROOT/usr/bin
+install -d $RPM_BUILD_ROOT%{_libdir}
+install -d $RPM_BUILD_ROOT%{_bindir}
 install -d $RPM_BUILD_ROOT/home/bin
-install -d $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
-install -d $RPM_BUILD_ROOT/%{_kylixdata}
+install -d $RPM_BUILD_ROOT%{_datadir}/doc/kylix3_open-1.0
+install -d $RPM_BUILD_ROOT%{_kylixdata}
 install -d $RPM_BUILD_ROOT/usr/local/etc
-install -d $RPM_BUILD_ROOT/etc/kylix
-install -d $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/kylix
+install -d $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
 
-cat %{SOURCE1} | sed "s~@INSTALL@~$RPM_BUILD_ROOT/%{_kylixdata}~" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
+cat %{SOURCE1} | sed "s:@INSTALL@:$RPM_BUILD_ROOT%{_kylixdata}:" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
 
 ./setup.sh -m -a -n < response
-#cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s%\$SETUP_INSTALLPATH%$RPM_BUILD_ROOT/%{_kylixdata}%g > ./main.sh
-cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s~\$inimerge.*~~ > ./main.sh
+#cat setup.data/main.sh | sed s:~:$RPM_BUILD_ROOT/home: | sed s:\$SETUP_INSTALLPATH:$RPM_BUILD_ROOT%{_kylixdata}:g > ./main.sh
+cat setup.data/main.sh | sed s:~:$RPM_BUILD_ROOT/home: | sed s:\$inimerge.*:: > ./main.sh
 chmod +x ./main.sh
 ./main.sh
 
 # FIXME:
-#cp -r $RPM_BUILD_ROOT/%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
-#ln -s $RPM_BUILD_ROOT/%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
+#cp -r $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
+#ln -s $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
 
 oldpath=`pwd`
-cd $RPM_BUILD_ROOT/%{_kylixdata}/help/app-defaults/
+cd $RPM_BUILD_ROOT%{_kylixdata}/help/app-defaults/
 rm ja_JP.eucjp
 # FIXME: I don't know how to add symlinks to rpm
 #ln -s ja_JP.eucJP ja_JP.eucjp
 
-cd $RPM_BUILD_ROOT/%{_kylixdata}/help/lib/locale/
+cd $RPM_BUILD_ROOT%{_kylixdata}/help/lib/locale/
 rm ja_JP.eucjp
 # FIXME: I don't know how to add symlinks to rpm
 #ln -s ja_JP.eucJP ja_JP.eucjp
@@ -82,14 +86,14 @@ rm ja_JP.eucjp
 #cat << EOF > $RPM_BUILD_ROOT/%{_libdir}/libborcrtl.so
 #GROUP ( %{_kylixdata}/lib/libborcrtl.so.1.0 %{_kylixdata}/lib/libborcrtl_nonshared.a )
 #EOF
-#??? chmod a+x $RPM_BUILD_ROOT/%{_kylixdata}/bin/libborcrtl.so
+#??? chmod a+x $RPM_BUILD_ROOT%{_kylixdata}/bin/libborcrtl.so
 
-mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/*.so.* $RPM_BUILD_ROOT/%{_libdir}
-mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/*.so $RPM_BUILD_ROOT/%{_libdir}
-mv $RPM_BUILD_ROOT/%{_libdir}/*ilink*.so* $RPM_BUILD_ROOT/%{_kylixdata}/bin
+mv $RPM_BUILD_ROOT%{_kylixdata}/bin/*.so.* $RPM_BUILD_ROOT%{_libdir}
+mv $RPM_BUILD_ROOT%{_kylixdata}/bin/*.so $RPM_BUILD_ROOT%{_libdir}
+mv $RPM_BUILD_ROOT%{_libdir}/*ilink*.so* $RPM_BUILD_ROOT%{_kylixdata}/bin
 
-cd $RPM_BUILD_ROOT/%{_libdir}
-#cd $RPM_BUILD_ROOT/%{_kylixdata}/bin
+cd $RPM_BUILD_ROOT%{_libdir}
+#cd $RPM_BUILD_ROOT%{_kylixdata}/bin
 
 for k in *6.9.0* ; do k2=`echo $k | sed s/6.9.0\$/6.9/` ; if ! [ -f $k2 ] ; then ln -s $k $k2 ; fi ; done
 ln -sf libborqt-6.9.0-qt2.3.so libborqt-6.9-qt2.3.so
@@ -130,22 +134,22 @@ ln -sf libborunwind.so.6.0 libborunwind.so.6
 # /etc directory
 cd $oldpath
 
-cp -p $RPM_BUILD_ROOT/home/.borland/.borlandrc $RPM_BUILD_ROOT/etc/kylix/borlandrc.conf
-cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/delphi69upg $RPM_BUILD_ROOT/etc/kylix/delphi69upg.conf
-cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/delphi.dci $RPM_BUILD_ROOT/etc/kylix/delphi69dci.conf
-cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/bcb.dci $RPM_BUILD_ROOT/etc/kylix/bcb69dci.conf
-cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/delphi69dmt $RPM_BUILD_ROOT/etc/kylix/delphi69dmt.conf
-cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/bcb69dmt $RPM_BUILD_ROOT/etc/kylix/bcb69dmt.conf
-cp $RPM_BUILD_ROOT/%{_kylixdata}/bin/incfiles.dat $RPM_BUILD_ROOT/etc/kylix/incfilesdat.conf
+cp -p $RPM_BUILD_ROOT/home/.borland/.borlandrc $RPM_BUILD_ROOT%{_sysconfdir}/kylix/borlandrc.conf
+cp $RPM_BUILD_ROOT%{_kylixdata}/bin/delphi69upg $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69upg.conf
+cp $RPM_BUILD_ROOT%{_kylixdata}/bin/delphi.dci $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69dci.conf
+cp $RPM_BUILD_ROOT%{_kylixdata}/bin/bcb.dci $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bcb69dci.conf
+cp $RPM_BUILD_ROOT%{_kylixdata}/bin/delphi69dmt $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69dmt.conf
+cp $RPM_BUILD_ROOT%{_kylixdata}/bin/bcb69dmt $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bcb69dmt.conf
+cp $RPM_BUILD_ROOT%{_kylixdata}/bin/incfiles.dat $RPM_BUILD_ROOT%{_sysconfdir}/kylix/incfilesdat.conf
 
-cat %{SOURCE3} > $RPM_BUILD_ROOT/etc/kylix/delphi69dro.conf
-cat %{SOURCE3} > $RPM_BUILD_ROOT/etc/kylix/bcb69dro.conf
+cat %{SOURCE3} > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69dro.conf
+cat %{SOURCE3} > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bcb69dro.conf
 
-mv $RPM_BUILD_ROOT/%{_kylixdata}/bin/dbkexe* $RPM_BUILD_ROOT/%{_libdir}
+mv $RPM_BUILD_ROOT%{_kylixdata}/bin/dbkexe* $RPM_BUILD_ROOT%{_libdir}
 
 # Create dcc.cfg file
-cat <<EOF > $RPM_BUILD_ROOT/etc/kylix/dcc.conf
---msgcatalog=/%{_kylixdata}/bin
+cat <<EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/dcc.conf
+--msgcatalog=%{_kylixdata}/bin
 -u/%{_kylixdata}/lib
 -o/%{_kylixdata}/bin
 EOF
@@ -155,38 +159,38 @@ EOF
 libgcc_fname=`gcc -print-libgcc-file-name`
 libgcc_dir=`dirname $libgcc_fname`
 
-cat << EOF > $RPM_BUILD_ROOT/etc/kylix/bccrc
--I"/%{_kylixdata}/include/stlport":"/%{_kylixdata}/include":"/%{_kylixdata}/include/vcl":"/usr/include"
--L"/%{_kylixdata}/lib/obj":"/%{_kylixdata}/lib":"/%{_kylixdata}/lib/release":"%{_libdir}":"/lib":"/usr/X11R6/lib":"/%{_kylixdata}/bin":"$libgcc_dir"
+cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bccrc
+-I"%{_kylixdata}/include/stlport":"%{_kylixdata}/include":"%{_kylixdata}/include/vcl":"%{_includedir}"
+-L"%{_kylixdata}/lib/obj":"%{_kylixdata}/lib":"%{_kylixdata}/lib/release":"%{_libdir}":"/lib":"/usr/X11R6/lib":"%{_kylixdata}/bin":"$libgcc_dir"
 EOF
 
 # Create ilinkrc.cfg file
-cat << EOF > $RPM_BUILD_ROOT/etc/kylix/ilinkrc
--L"/%{_kylixdata}/lib/obj":"/%{_kylixdata}/lib":"/%{_kylixdata}/lib/release":"/usr/lib":"/lib":"/usr/X11R6/lib":"/%{_kylixdata}/bin"
+cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/ilinkrc
+-L"%{_kylixdata}/lib/obj":"%{_kylixdata}/lib":"%{_kylixdata}/lib/release":"%{_libdir}":"/lib":"/usr/X11R6/lib":"%{_kylixdata}/bin"
 EOF
 
 
-ln -sf /etc/kylix/borlandrc.conf $RPM_BUILD_ROOT/usr/local/etc
+ln -sf %{_sysconfdir}/kylix/borlandrc.conf $RPM_BUILD_ROOT/usr/local/etc
 
 # wrapper
-cat %{SOURCE2}> $RPM_BUILD_ROOT/usr/bin/bc++
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bc++.msg
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcpp.msg 
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/dcc
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/hyperhelp
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/kreg
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcb
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/delphi
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcblin
-ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/ilink
-ln -sf %{_kylixdata}/bin/ilink.msg $RPM_BUILD_ROOT/usr/bin/ilink.msg
+cat %{SOURCE2}> $RPM_BUILD_ROOT%{_bindir}/bc++
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bc++.msg
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcpp.msg
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/dcc
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/hyperhelp
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/kreg
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcb
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/delphi
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcblin
+ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/ilink
+ln -sf %{_kylixdata}/bin/ilink.msg $RPM_BUILD_ROOT%{_bindir}/ilink.msg
 
 
 # kylixpath
-cat > $RPM_BUILD_ROOT/%{_kylixdata}/bin/kylixpath <<EOF
+cat > $RPM_BUILD_ROOT%{_kylixdata}/bin/kylixpath <<EOF
 #!/bin/bash
 
-prepath=/%{_kylixdata}
+prepath=%{_kylixdata}
 if  [ -n "\$1" ]; then
     prepath=\$1
 fi
@@ -262,8 +266,8 @@ export NLSPATH
 
 EOF
 
-cp -f $RPM_BUILD_ROOT/%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
-cat > $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix/.directory << EOF
+cp -f $RPM_BUILD_ROOT%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
+cat > $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix/.directory << EOF
 [Desktop Entry]
 Name=Kylix
 Name[pl]=Kylix
@@ -274,14 +278,14 @@ Type=Directory
 EOF
 
 oldpath=`pwd`
-cd $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
+cd $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
 
 for k in *.desktop
 do
   cat $k | sed "s+$RPM_BUILD_ROOT++" > tmp
-  cat tmp | sed "s%/%{_kylixdata}/bin/registerkylix%/usr/bin/kreg%" > $k
-  cat $k | sed "s%/%{_kylixdata}/bin/startbcb%/usr/bin/bcblin%" > tmp
-  cat tmp | sed "s%/%{_kylixdata}/bin/startdelphi%/usr/bin/delphi%" > $k
+  cat tmp | sed "s:%{_kylixdata}/bin/registerkylix:%{_bindir}/kreg:" > $k
+  cat $k | sed "s:%{_kylixdata}/bin/startbcb:%{_bindir}/bcblin:" > tmp
+  cat tmp | sed "s:%{_kylixdata}/bin/startdelphi:%{_bindir}/delphi:" > $k
 done
 
 cd $oldpath
@@ -312,9 +316,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/winhelp*.so*
 %attr(755,root,root) %{_libdir}/dbkexe*
 
-%config(noreplace) /etc/kylix/*
+%config(noreplace) %{_sysconfdir}/kylix/*
 /usr/local/etc
-/usr/X11R6/share/applnk/Development/Kylix
+%{_applnkdir}/Development/Kylix
 
 %attr(755,root,root) %{_bindir}/*
 
@@ -409,7 +413,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libborstl.so*
 %attr(755,root,root) %{_libdir}/libborcrtl.so*
 
-#this one was not mentioned in DEPLOY file 
+#this one was not mentioned in DEPLOY file
 #but IMVHO it ought to be...
 %attr(755,root,root) %{_libdir}/bplrtl.so*
 

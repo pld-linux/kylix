@@ -157,7 +157,7 @@ EOF
 
 # Create bcc.cfg file
 
-libgcc_fname=`gcc -print-libgcc-file-name`
+libgcc_fname=`%{__cc} -print-libgcc-file-name`
 libgcc_dir=`dirname $libgcc_fname`
 
 cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bccrc

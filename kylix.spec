@@ -15,7 +15,8 @@ Source1:	%{name}.response
 Source2:	%{name}.wrapper
 Source3:	%{name}.dro
 Patch0:		%{name}-setup.patch
-URL:		http://www.borland.com/kylix/kylix3open.shtml
+NoSource:	0
+URL:		http://www.borland.com/kylix/open/
 Requires:	%{name}-libs = %{version}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 

@@ -1,0 +1,11 @@
+--- kylix3_open/setup.data/setup.xml.old	Fri Aug 16 21:36:56 2002
++++ kylix3_open/setup.data/setup.xml	Fri Aug 30 10:43:19 2002
+@@ -6,8 +6,6 @@
+ 	preuninstall="setup.data/borprecleanup.sh"
+ 	postuninstall="setup.data/borpostcleanup.sh"
+ 	font="-misc-fixed-medium-r-semicondensed-*-*-120-*-*-c-*-iso8859-1">
+-<eula>license.txt</eula>
+-<readme>README</readme>
+ <donemsg align="left">**** IMPORTANT ****
+ If you installed the GNOME/KDE menu items, please restart X
+ Windows to make the menu items appear. 

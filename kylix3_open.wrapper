@@ -374,5 +374,5 @@ rm -f $KHOME/.tmp
   kreg
 fi
 
-$KBIN/kylixpath
+. $KBIN/kylixpath
 $KBIN/`echo $0 | sed 's+.*/++'` $@

@@ -1,8 +1,8 @@
 Summary:	Kylix 3 Open Edition
 Name:		kylix3_open
 Version:	1.0
-Release:	1
-License:	GPL
+Release:	2
+License:	non-distributable
 Group:		X11/Development/Tools
 Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}.tar.gz
 Source1:	%{name}.response
@@ -39,7 +39,7 @@ cat %{SOURCE1} | sed "s~@INSTALL@~$RPM_BUILD_ROOT/usr/share/kylix3_open~" | sed 
 
 ./setup.sh -m -a -n < response
 #cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s%\$SETUP_INSTALLPATH%$RPM_BUILD_ROOT/usr/share/kylix3_open%g > ./main.sh
-cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% > ./main.sh
+cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s%\$inimerge.*%% > ./main.sh
 chmod +x ./main.sh
 ./main.sh
 
@@ -113,6 +113,7 @@ ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/ilink.msg
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/kreg
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcb
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/delphi
+ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcblin
 
 
 # kylixpath
@@ -205,6 +206,23 @@ Comment[pl]=Kylix
 #Icon=
 Type=Directory
 EOF
+
+oldpath=`pwd`
+cd $RPM_BUILD_ROOT/usr/X11R6/share/applnk/Development/Kylix
+
+for k in *.desktop
+do
+  cat $k | sed "s+$RPM_BUILD_ROOT++" > tmp
+  mv tmp $k
+  cat $k | sed "s%/usr/share/kylix3_open/bin/registerkylix%/usr/bin/kreg%" > tmp
+  mv tmp $k
+  cat $k | sed "s%/usr/share/kylix3_open/bin/startbcb%/usr/bin/bcblin%" > tmp
+  mv tmp $k
+  cat $k | sed "s%/usr/share/kylix3_open/bin/startdelphi%/usr/bin/delphi%" > tmp
+  mv tmp $k
+done
+
+cd $oldpath
 
 %clean
 rm -rf $RPM_BUILD_ROOT

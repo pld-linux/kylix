@@ -58,7 +58,7 @@ install -d $RPM_BUILD_ROOT%{_datadir}/doc/kylix3_open-1.0
 install -d $RPM_BUILD_ROOT%{_kylixdata}
 install -d $RPM_BUILD_ROOT/usr/local/etc
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/kylix
-install -d $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
+install -d $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix
 
 cat %{SOURCE1} | sed "s:@INSTALL@:$RPM_BUILD_ROOT%{_kylixdata}:" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
 
@@ -266,8 +266,8 @@ export NLSPATH
 
 EOF
 
-cp -f $RPM_BUILD_ROOT%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
-cat > $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix/.directory << EOF
+cp -f $RPM_BUILD_ROOT%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix
+cat > $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix/.directory << EOF
 [Desktop Entry]
 Name=Kylix
 Name[pl]=Kylix
@@ -278,7 +278,7 @@ Type=Directory
 EOF
 
 oldpath=`pwd`
-cd $RPM_BUILD_ROOT%{_applnkdir}/Development/Kylix
+cd $RPM_BUILD_ROOT%{_desktopdir}/Development/Kylix
 
 for k in *.desktop
 do
@@ -318,7 +318,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %{_sysconfdir}/kylix/*
 /usr/local/etc
-%{_applnkdir}/Development/Kylix
+%{_desktopdir}/Development/Kylix
 
 %attr(755,root,root) %{_bindir}/*
 

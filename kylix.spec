@@ -84,7 +84,7 @@ rm ja_JP.eucjp
 
 # libraries
 # Create bin/libborcrtl.so file - this one is unneded - i think so... (pascalek)
-#cat << EOF > $RPM_BUILD_ROOT/%{_libdir}/libborcrtl.so
+#cat << EOF > $RPM_BUILD_ROOT%{_libdir}/libborcrtl.so
 #GROUP ( %{_kylixdata}/lib/libborcrtl.so.1.0 %{_kylixdata}/lib/libborcrtl_nonshared.a )
 #EOF
 #??? chmod a+x $RPM_BUILD_ROOT%{_kylixdata}/bin/libborcrtl.so

@@ -1,11 +1,13 @@
 Summary:	Kylix 3 Open Edition
 Name:		kylix3_open
 Version:	1.0
-Release:	2
+Release:	3
 License:	non-distributable
 Group:		X11/Development/Tools
 Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}.tar.gz
 Source1:	%{name}.response
+Source2:	%{name}.wrapper
+Source3:	%{name}.dro
 Patch0:		%{name}-setup.patch
 URL:		http://www.borland.com/kylix/kylix3open.shtml
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -39,7 +41,7 @@ cat %{SOURCE1} | sed "s~@INSTALL@~$RPM_BUILD_ROOT/usr/share/kylix3_open~" | sed 
 
 ./setup.sh -m -a -n < response
 #cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s%\$SETUP_INSTALLPATH%$RPM_BUILD_ROOT/usr/share/kylix3_open%g > ./main.sh
-cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s%\$inimerge.*%% > ./main.sh
+cat setup.data/main.sh | sed s%~%$RPM_BUILD_ROOT/home% | sed s~\$inimerge.*~~ > ./main.sh
 chmod +x ./main.sh
 ./main.sh
 
@@ -53,58 +55,101 @@ rm ja_JP.eucjp
 # FIXME: I don't know how to add symlinks to rpm
 #ln -s ja_JP.eucJP ja_JP.eucjp
 
-cd $RPM_BUILD_ROOT//usr/share/kylix3_open/help/lib/locale/
+cd $RPM_BUILD_ROOT/usr/share/kylix3_open/help/lib/locale/
 rm ja_JP.eucjp
 # FIXME: I don't know how to add symlinks to rpm
 #ln -s ja_JP.eucJP ja_JP.eucjp
 
-#mv $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/*.so.* $RPM_BUILD_ROOT/usr/lib
-#mv $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/*.so $RPM_BUILD_ROOT/usr/lib
-#cd $RPM_BUILD_ROOT/usr/lib
-cd $RPM_BUILD_ROOT/usr/share/kylix3_open/bin
+# libraries
+# Create bin/libborcrtl.so file
+cat << EOF > $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/libborcrtl.so
+GROUP ( $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/libborcrtl.so.1 $RPM_BUILD_ROOT/usr/share/kylix3_open/lib/libborcrtl_nonshared.a )
+EOF
+chmod a+x $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/libborcrtl.so
+
+mv $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/*.so.* $RPM_BUILD_ROOT/usr/lib
+mv $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/*.so $RPM_BUILD_ROOT/usr/lib
+cd $RPM_BUILD_ROOT/usr/lib
+#cd $RPM_BUILD_ROOT/usr/share/kylix3_open/bin
 
 for k in *6.9.0* ; do k2=`echo $k | sed s/6.9.0\$/6.9/` ; if ! [ -f $k2 ] ; then ln -s $k $k2 ; fi ; done
+ln -sf libdbk.so.1.9 libdbk.so.1
+ln -sf libqt.so.2.3.0 libqt.so.2
+ln -sf libborunwind.so.6.0 libborunwind.so.6
+ln -sf librpcrt4.borland.so.1.0 librpcrt4.borland.so
+ln -sf libadvapi32.borland.so.1.0 libadvapi32.borland.so
+ln -sf libwine_unicode.borland.so.1.0 libwine_unicode.borland.so
+ln -sf libborcrtl.so.1.0 libborcrtl.so.1
+ln -sf libborstl.so.1.0 libborstl.so
+ln -sf libcomctl32.borland.so.1.0 libcomctl32.borland.so
+ln -sf libcomdlg32.borland.so.1.0 libcomdlg32.borland.so
+ln -sf libgdi32.borland.so.1.0 libgdi32.borland.so
+ln -sf libimm32.borland.so.1.0 libimm32.borland.so
+ln -sf liblz32.borland.so.1.0 liblz32.borland.so
+ln -sf libmpr.borland.so.1.0 libmpr.borland.so
+ln -sf libole32.borland.so.1.0 libole32.borland.so
+ln -sf liboleaut32.borland.so.1.0 liboleaut32.borland.so
+ln -sf libolecli32.borland.so.1.0 libolecli32.borland.so
+ln -sf liboledlg.borland.so.1.0 liboledlg.borland.so
+ln -sf libolepro32.borland.so.1.0 libolepro32.borland.so
+ln -sf libolesvr32.borland.so.1.0 libolesvr32.borland.so
+ln -sf libshell32.borland.so.1.0 libshell32.borland.so
+ln -sf libuser32.borland.so.1.0 libuser32.borland.so
+ln -sf libversion.borland.so.1.0 libversion.borland.so
+ln -sf libwine.borland.so.1.0 libwine.borland.so
+ln -sf libwineoss.drv.borland.so.1.0 libwineoss.drv.borland.so
+ln -sf libwinmm.borland.so.1.0 libwinmm.borland.so
+ln -sf libwinspool.drv.borland.so.1.0 libwinspool.drv.borland.so
+ln -sf libx11drv.borland.so.1.0 libx11drv.borland.so
+ln -sf libwininet.borland.so.1.0 libwininet.borland.so
+ln -sf libkernel32.borland.so.1.0 libkernel32.borland.so
+ln -sf libwineps.borland.so.1.0 libwineps.borland.so
+ln -sf libshlwapi.borland.so.1.0 libshlwapi.borland.so
+ln -sf libborunwind.so.6 libborunwind.so
 
+
+# /etc directory
 cd $oldpath
 
 cp -p $RPM_BUILD_ROOT/home/.borland/.borlandrc $RPM_BUILD_ROOT/etc/kylix/borlandrc.conf
-ln -sf /etc/kylix/borlandrc.conf $RPM_BUILD_ROOT/usr/local/etc
+cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/delphi69upg $RPM_BUILD_ROOT/etc/kylix/delphi69upg.conf
+cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/delphi.dci $RPM_BUILD_ROOT/etc/kylix/delphi69dci.conf
+cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/bcb.dci $RPM_BUILD_ROOT/etc/kylix/bcb69dci.conf
+cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/delphi69dmt $RPM_BUILD_ROOT/etc/kylix/delphi69dmt.conf
+cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/bcb69dmt $RPM_BUILD_ROOT/etc/kylix/bcb69dmt.conf
+cp $RPM_BUILD_ROOT/usr/share/kylix3_open/bin/incfiles.dat $RPM_BUILD_ROOT/etc/kylix/incfilesdat.conf
 
-cat > $RPM_BUILD_ROOT/usr/bin/bc++ <<"EOF"
-#!/bin/bash
+cat %{SOURCE3} > $RPM_BUILD_ROOT/etc/kylix/delphi69dro.conf
+cat %{SOURCE3} > $RPM_BUILD_ROOT/etc/kylix/bcb69dro.conf
 
-# BEGIN STRING TABLE
 
-KYDEF_LOCALE="en_US"
-LC_ALL_IS_C1="The LC_ALL environment variable is set to C.  Kylix cannot start with this setting."
-LC_ALL_IS_C2="Defaulting LC_ALL to"
-KHOME="$HOME/.borland"
-KDIR=/usr/share/kylix3_open
-KBIN=$KDIR/bin
-
-# END STRING TABLE
-
-if [ -z "\$LANG" ]; then
-   LANG=\$KYDEF_LOCALE
-   export LANG
-fi
-
-if [ "\$LC_ALL" = "C" ]; then
-   echo "\$LC_ALL_IS_C1"
-   echo "\$LC_ALL_IS_C2 \$KYDEF_LOCALE."
-   LC_ALL=\$KYDEF_LOCALE
-   export LC_ALL
-fi
-
-if [ ! -d "$KHOME" ]; then
-  mkdir $KHOME
-  kreg
-fi
-
-$KBIN/kylixpath
-$KBIN/`echo $0 | sed 's+.*/++'` $@
+# Create dcc.cfg file
+cat <<EOF > $RPM_BUILD_ROOT/etc/kylix/dcc.conf
+--msgcatalog=/usr/share/kylix3_open/bin
+-u/usr/share/kylix3_open/lib
+-o/usr/share/kylix3_open/bin
 EOF
 
+# Create bcc.cfg file
+
+libgcc_fname=`gcc -print-libgcc-file-name`
+libgcc_dir=`dirname $libgcc_fname`
+
+cat << EOF > $RPM_BUILD_ROOT/etc/kylix/bccrc
+-I"/usr/share/kylix3_open/include/stlport":"/usr/share/kylix3_open/include":"/usr/share/kylix3_open/include/vcl":"/usr/include"
+-L"/usr/share/kylix3_open/lib/obj":"/usr/share/kylix3_open/lib":"/usr/share/kylix3_open/lib/release":"/usr/lib":"/lib":"/usr/X11R6/lib":"/usr/share/kylix3_open/bin":"$libgcc_dir"
+EOF
+
+# Create ilinkrc.cfg file
+cat << EOF > $RPM_BUILD_ROOT/etc/kylix/ilinkrc
+-L"/usr/share/kylix3_open/lib/obj":"/usr/share/kylix3_open/lib":"/usr/share/kylix3_open/lib/release":"/usr/lib":"/lib":"/usr/X11R6/lib":"/usr/share/kylix3_open/bin"
+EOF
+
+
+ln -sf /etc/kylix/borlandrc.conf $RPM_BUILD_ROOT/usr/local/etc
+
+# wrapper
+cat %{SOURCE2}> $RPM_BUILD_ROOT/usr/bin/bc++
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bc++.msg
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/bcpp.msg 
 ln -sf /usr/bin/bc++ $RPM_BUILD_ROOT/usr/bin/dcc
@@ -241,10 +286,10 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README
-%attr(755,root,root) /usr/share/kylix3_open/bin/*.so*
-#%attr(755,root,root) /usr/lib/*.so*
+%attr(755,root,root) /usr/lib/*.so*
+#%attr(755,root,root) /usr/share/kylix3_open/bin/*.so*
 
-%config(noreplace) /etc/kylix/borlandrc.conf
+%config(noreplace) /etc/kylix/*
 /usr/local/etc
 /usr/X11R6/share/applnk/Development/Kylix
 

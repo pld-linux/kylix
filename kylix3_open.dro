@@ -1,0 +1,112 @@
+[Repository Pages]
+Forms=
+Dialogs=
+Projects=
+
+[/usr/share/kylix3_open/objrepos/clxokcancl1]
+Type=FormTemplate
+Name=Standard Dialog (Horizontal)
+Page=Dialogs
+Icon=/usr/share/kylix3_open/objrepos/clxokcancl1.ico
+Description=OK, Cancel along bottom of dialog.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[/usr/share/kylix3_open/objrepos/clxokcnhlp1]
+Type=FormTemplate
+Name=Dialog with Help (Horizontal)
+Page=Dialogs
+Icon=/usr/share/kylix3_open/objrepos/clxokcnhlp1.ico
+Description=OK, Cancel, Help along bottom of dialog. This is an Inherited Form.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=/usr/share/kylix3_open/objrepos/clxokcancl1
+Designer=xfm
+
+[/usr/share/kylix3_open/objrepos/clxokcancl2]
+Type=FormTemplate
+Name=Standard Dialog (Vertical)
+Page=Dialogs
+Icon=/usr/share/kylix3_open/objrepos/clxokcancl2.ico
+Description=OK, Cancel along right edge.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[/usr/share/kylix3_open/objrepos/clxokcnhlp2]
+Type=FormTemplate
+Name=Dialog with Help (Vertical)
+Page=Dialogs
+Icon=/usr/share/kylix3_open/objrepos/clxokcnhlp2.ico
+Description=OK, Cancel, Help along right edge. This is an Inherited Form.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=/usr/share/kylix3_open/objrepos/clxokcancl2
+Designer=xfm
+
+[/usr/share/kylix3_open/objrepos/clxabout]
+Type=FormTemplate
+Name=About box
+Page=Forms
+Icon=/usr/share/kylix3_open/objrepos/clxabout.ico
+Description=Generic About box dialog.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[/usr/share/kylix3_open/objrepos/clxtabpgdlg]
+Type=FormTemplate
+Name=Tabbed pages
+Page=Forms
+Icon=/usr/share/kylix3_open/objrepos/clxtabpgdlg.ico
+Description=Generic tabbed pages dialog with OK, Cancel, and Help buttons.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[/usr/share/kylix3_open/objrepos/clxpassword]
+Type=FormTemplate
+Name=Password Dialog
+Page=Dialogs
+Icon=/usr/share/kylix3_open/objrepos/clxpassword.ico
+Description=Generic password entry form.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+[/usr/share/kylix3_open/objrepos/clxduallist]
+Type=FormTemplate
+Name=Dual list box
+Page=Forms
+Icon=/usr/share/kylix3_open/objrepos/clxduallist.ico
+Description=Dialog box with two list boxes. Supports moving items from one list to the other.
+Author=Borland
+DefaultMainForm=0
+DefaultNewForm=0
+Ancestor=
+Designer=xfm
+
+
+[/usr/share/kylix3_open/objrepos/mdiapp/CLXMDIApp]
+Type=ProjectTemplate
+Name=MDI Application
+Page=Projects
+Icon=/usr/share/kylix3_open/objrepos/mdiapp/CLXMDIApp.ico
+Description=Standard MDI application frame.
+Author=Borland
+DefaultProject=0
+Designer=xfm
+

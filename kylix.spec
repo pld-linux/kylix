@@ -306,6 +306,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/winhelp*.so*
 %attr(755,root,root) %{_libdir}/dbkexe*
 
+%dir %{_sysconfdir}/kylix
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/kylix/*
 /usr/local/etc/*
 %{_desktopdir}/*.desktop
@@ -327,6 +328,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_kylixdata}/documentation
 %{_kylixdata}/lib
 
+%dir %{_kylixdata}
+%dir %{_kylixdata}/bin
 %dir %{_kylixdata}/help
 %dir %{_kylixdata}/help/bin
 %attr(755,root,root) %{_kylixdata}/help/bin/*

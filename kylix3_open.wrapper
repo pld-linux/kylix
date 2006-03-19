@@ -81,15 +81,15 @@ KBIN=$KDIR/bin
 
 
 
-if [ -z "\$LANG" ]; then
-   LANG=\$KYDEF_LOCALE
+if [ -z "$LANG" ]; then
+   LANG=$KYDEF_LOCALE
    export LANG
 fi
 
-if [ "\$LC_ALL" = "C" ]; then
-   echo "\$LC_ALL_IS_C1"
-   echo "\$LC_ALL_IS_C2 \$KYDEF_LOCALE."
-   LC_ALL=\$KYDEF_LOCALE
+if [ "$LC_ALL" = "C" ]; then
+   echo "$LC_ALL_IS_C1"
+   echo "$LC_ALL_IS_C2 $KYDEF_LOCALE."
+   LC_ALL=$KYDEF_LOCALE
    export LC_ALL
 fi
 

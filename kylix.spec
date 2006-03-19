@@ -11,6 +11,7 @@ Release:	6
 License:	non-distributable
 Group:		X11/Development/Tools
 Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}.tar.gz
+# NoSource0-md5:	83124b00249754ef0ff02569345fc5ae
 Source1:	%{name}.response
 Source2:	%{name}.wrapper
 Source3:	%{name}.dro

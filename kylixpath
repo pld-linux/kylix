@@ -1,0 +1,76 @@
+#!/bin/bash
+
+prepath=/usr/share/kylix3_open
+if [ -n "$1" ]; then
+	prepath=$1
+fi
+kylixpath=$prepath/
+has_slash=`expr "$kylixpath" : '\(.*//\)'`
+if [ -n "$has_slash" ]
+then
+	kylixpath=$prepath
+else
+	kylixpath=$prepath/
+fi
+b=bin
+l=lib
+h=help
+hl=help/lib
+
+path_found=
+for kpath in $kylixpath/$h $kylixpath/$l $kylixpath/$b; do
+	for ppath in `echo $PATH | sed s/:/\ /g`; do
+		if [ "$kpath" = "$ppath" ]; then
+			path_found="Y"
+		fi
+	done
+	if [ -z "$path_found" ]; then
+		PATH="$kpath:$PATH"
+	fi
+done
+
+locale=${LC_ALL:-${LC_CTYPE:-${LANG:-"C"}}}
+path_found=
+for kpath in $kylixpath/$hl $kylixpath/$hl/locale/$locale $kylixpath/$b; do
+	for ppath in `echo $LD_LIBRARY_PATH | sed s/:/\ /g`; do
+		if [ "$kpath" = "$ppath" ]; then
+			path_found="Y"
+		fi
+	done
+	if [ -z "$path_found" ]; then
+		LD_LIBRARY_PATH="$kpath:$LD_LIBRARY_PATH"
+	fi
+done
+
+XPPATH="$kylixpath/$h/xprinter"
+
+HHHOME="$kylixpath/$h"
+
+XAPPLRESDIR="$kylixpath/$h/app-defaults"
+
+NLSPATH="$kylixpath/$hl/locale/%L/%N.cat"
+
+export PATH
+export LD_LIBRARY_PATH
+export XPPATH
+export HHHOME
+export XAPPLRESDIR
+export NLSPATH
+#echo "PATH "
+#echo "$PATH"
+#echo ""
+#echo "LD_LIBRARY_PATH "
+#echo "$LD_LIBRARY_PATH"
+#echo ""
+#echo "XPPATH "
+#echo "$XPPATH"
+#echo ""
+#echo "HHHOME "
+#echo "$HHHOME"
+#echo ""
+#echo "XAPPLRESDIR "
+#echo "$XAPPLRESDIR"
+#echo ""
+#echo "NLSPATH "
+#echo "$NLSPATH"
+

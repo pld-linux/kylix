@@ -1,0 +1,3 @@
+- Release 5
+- Moved some linker files back to %{_kylixdata}/bin directory
+- STBR

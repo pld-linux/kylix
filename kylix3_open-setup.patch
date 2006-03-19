@@ -1,11 +1,30 @@
---- kylix3_open/setup.data/setup.xml.old	Fri Aug 16 21:36:56 2002
-+++ kylix3_open/setup.data/setup.xml	Fri Aug 30 10:43:19 2002
-@@ -6,8 +6,6 @@
- 	preuninstall="setup.data/borprecleanup.sh"
- 	postuninstall="setup.data/borpostcleanup.sh"
+diff -u kylix3_open/setup.data/setup.xml ./setup.data/setup.xml
+--- kylix3_open/setup.data/setup.xml	Fri Aug 30 10:43:19 2002
++++ ./setup.data/setup.xml	2006-03-19 06:07:04.000000000 +0200
+@@ -1,13 +1,11 @@
+ <?xml version="1.0" standalone="yes"?>
+ <install product="kylix3" desc="Borland Kylix 3"
+ 	version="3.0"  path="~"
+-	preinstall="sh setup.data/preinstall.sh" 
+-	postinstall="sh setup.data/borfinalize.sh"
+-	preuninstall="setup.data/borprecleanup.sh"
+-	postuninstall="setup.data/borpostcleanup.sh"
++	preinstall="./setup.data/preinstall.sh" 
++	postinstall="./setup.data/borfinalize.sh"
++	preuninstall="./setup.data/borprecleanup.sh"
++	postuninstall="./setup.data/borpostcleanup.sh"
  	font="-misc-fixed-medium-r-semicondensed-*-*-120-*-*-c-*-iso8859-1">
 -<eula>license.txt</eula>
 -<readme>README</readme>
  <donemsg align="left">**** IMPORTANT ****
  If you installed the GNOME/KDE menu items, please restart X
  Windows to make the menu items appear. 
+@@ -53,7 +51,7 @@
+ 	$INSTALLDIR/bin/delphi
+ </binary>
+ <script>
+-        sh setup.data/main.sh
++        bash ./setup.data/main.sh
+ </script>
+ <binary arch="any" libc="any" inrpm="true" symlink="startbcb" icon="bcb16.xpm" name="Kylix 3 (C++ IDE)" menu="Borland Kylix 3" play="no">
+         $INSTALLDIR/bin/startbcb

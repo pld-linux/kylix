@@ -1,9 +1,8 @@
-#TODO:
+# TODO:
 # - spec filename != Name
 # - kde applnk to help system does not work (have $RPM_BUILD_ROOT path inside)
 # - more subpackages: -bcb -delphi -bcb-ide -delphi-ide -doc
 # - spec cleanup required...
-
 Summary:	Kylix 3 Open Edition
 Summary(pl):	Kylix 3 - Wydanie otwarte
 Name:		kylix3_open
@@ -25,7 +24,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_kylixdata	/usr/share/kylix3_open
 
 %description
-Kylix.
+Borland Kylix 3 Enterprise delivers an integrated C++ and Delphi
+language solution for developing database, GUI, and Web applications
+for Linux which are cross-platform ready for Windows.
 
 %description -l pl
 Kylix.
@@ -33,8 +34,8 @@ Kylix.
 %package libs
 Summary:	Kylix libraries
 Summary(pl):	Biblioteki Kyliksa
-Group:		Development/Libraries
 License:	redistributable
+Group:		Development/Libraries
 
 %description libs
 Kylix libraries.
@@ -69,8 +70,8 @@ chmod +x ./main.sh
 ./main.sh
 
 # FIXME:
-#cp -r $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
-#ln -s $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT/usr/share/doc/kylix3_open-1.0
+#cp -r $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT%{_docdir}/kylix3_open-1.0
+#ln -s $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT%{_docdir}/kylix3_open-1.0
 
 oldpath=`pwd`
 cd $RPM_BUILD_ROOT%{_kylixdata}/help/app-defaults/

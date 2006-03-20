@@ -73,7 +73,7 @@ KYDEF_LOCALE="en_US"
 LC_ALL_IS_C1="The LC_ALL environment variable is set to C.  Kylix cannot start with this setting."
 LC_ALL_IS_C2="Defaulting LC_ALL to"
 KHOME="$HOME/.borland"
-KDIR=/usr/share/kylix3_open
+KDIR=/usr/lib/kylix
 KBIN=$KDIR/bin
 
 # END STRING TABLE

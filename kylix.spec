@@ -1,28 +1,35 @@
 # TODO:
-# - spec filename != Name
-# - kde applnk to help system does not work (have $RPM_BUILD_ROOT path inside)
 # - more subpackages: -bcb -delphi -bcb-ide -delphi-ide -doc
-# - spec cleanup required...
 Summary:	Kylix 3 Open Edition
 Summary(pl):	Kylix 3 - Wydanie otwarte
-Name:		kylix3_open
-Version:	1.0
-Release:	6
+Name:		kylix
+Version:	3
+Release:	0.2
 License:	non-distributable
 Group:		X11/Development/Tools
-Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}.tar.gz
+Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}%{version}_open.tar.gz
 # NoSource0-md5:	83124b00249754ef0ff02569345fc5ae
-Source1:	%{name}.response
-Source2:	%{name}.wrapper
-Source3:	%{name}.dro
-Patch0:		%{name}-setup.patch
+Source1:	%{name}%{version}_open.response
+Source2:	%{name}%{version}_open.wrapper
+Source3:	%{name}%{version}_open.dro
+Source4:	%{name}path
+Patch0:		%{name}3_open-setup.patch
 NoSource:	0
 URL:		http://www.borland.com/kylix/open/
+BuildRequires:	sed >= 4.0
+BuildRequires:	symlinks
+#BuildRequires:	compat-libstdc++-2.9
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	compat-libstdc++-2.9
+Provides:	libbortoken.so.6.9
+Provides:	libdcc.so.6.9
+Provides:	libilinkintf.so.6.9
+ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_kylixdata	/usr/share/kylix3_open
+%define		_sysconfdir	/etc/kylix
+%define		_libexecdir	%{_libdir}/kylix
+%define		_includedir	%{_prefix}/include/kylix
+%define		_datadir	%{_prefix}/share/kylix
 
 %description
 Borland Kylix 3 Enterprise delivers an integrated C++ and Delphi
@@ -35,8 +42,10 @@ Kylix.
 %package libs
 Summary:	Kylix libraries
 Summary(pl):	Biblioteki Kyliksa
-License:	redistributable
+# not redistributable due packaged bplrtl.so
+#License:	redistributable
 Group:		Development/Libraries
+Provides:	libborunwind.so
 
 %description libs
 Kylix libraries.
@@ -45,112 +54,82 @@ Kylix libraries.
 Biblioteki Kyliksa.
 
 %prep
-%setup -q -n %{name}
-install %{SOURCE1} .
+%setup -q -n %{name}%{version}_open
 %patch0 -p1
+
+install -D %{SOURCE4} bin/kylixpath
+./setup.data/bin/x86/setup -i `pwd`/root -m -n -a || {
+: You should disable ./builder logging if you get errors like:
+:  Standard input is not a terminal!
+:  No UI drivers available
+exit 1
+}
+cd root
+
+# convert links to relative
+symlinks -csvr .
+# second run will make the relative links short
+symlinks -csvr .
+
+sed -i -e "s,$(pwd),%{_datadir}," \
+	bin/kylixpath \
+	bin/libborcrtl.so \
+	bin/registerkylix \
+	bin/startbcb \
+	bin/startdelphi \
+	bin/startkylix \
+	help/hyperhelp.sh \
+	shortcuts/gnome/hyperhelp.desktop \
+	shortcuts/gnome/registerkylix.desktop \
+	shortcuts/gnome/startbcb.desktop \
+	shortcuts/gnome/startdelphi.desktop \
+	shortcuts/kde/hyperhelp.desktop \
+	shortcuts/kde/registerkylix.desktop \
+	shortcuts/kde/startbcb.desktop \
+	shortcuts/kde/startdelphi.desktop \
+	uninstall
+
+# ldconfig should create proper links, remove and keep backup in links.tar
+#(cd bin; find -type l |xargs tar --remove-files -cf ../links.tar)
+
+# making it easier to install
+mv lib data
+mkdir -p lib privlib
+mv bin/{bpl,lib}*.so.* lib
+mv bin/lib*qt*.so lib
+mv bin/lib*borland*.so lib
+mv bin/libborstl.so lib
+mv bin/libborunwind.so lib
+mv bin/*.so* privlib
+mv data/*.a privlib
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_libdir}
-install -d $RPM_BUILD_ROOT%{_bindir}
-# WTF???
-install -d $RPM_BUILD_ROOT/home/bin
-install -d $RPM_BUILD_ROOT%{_datadir}/doc/kylix3_open-1.0
-install -d $RPM_BUILD_ROOT%{_kylixdata}
-# WTF???
-install -d $RPM_BUILD_ROOT/usr/local/etc
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/kylix
-install -d $RPM_BUILD_ROOT%{_desktopdir}
+install -d $RPM_BUILD_ROOT{%{_datadir},%{_libdir},%{_bindir},%{_sysconfdir},%{_includedir}} \
+	$RPM_BUILD_ROOT{%{_libexecdir}/{lib,bin},%{_desktopdir},%{_examplesdir}/%{name}-%{version}}
 
-cat %{SOURCE1} | sed "s:@INSTALL@:$RPM_BUILD_ROOT%{_kylixdata}:" | sed "s~@SYMLINKS@~$RPM_BUILD_ROOT/home/bin~" > response
+cd root
+cp -a bin/* $RPM_BUILD_ROOT%{_libexecdir}/bin
+cp -a lib/* $RPM_BUILD_ROOT%{_libdir}
+cp -a privlib/* $RPM_BUILD_ROOT%{_libexecdir}
+cp -a shortcuts/gnome/* $RPM_BUILD_ROOT%{_desktopdir}
+cp -a source $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
+cp -a examples/* $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
+cp -a data/* $RPM_BUILD_ROOT%{_libexecdir}/lib
+cp -a include/* $RPM_BUILD_ROOT%{_includedir}
+cp -a help images documentation objrepos $RPM_BUILD_ROOT%{_datadir}
+cp -a *.xpm oe.slip $RPM_BUILD_ROOT%{_datadir}
 
-./setup.sh -m -a -n < response
-#cat setup.data/main.sh | sed s:~:$RPM_BUILD_ROOT/home: | sed s:\$SETUP_INSTALLPATH:$RPM_BUILD_ROOT%{_kylixdata}:g > ./main.sh
-cat setup.data/main.sh | sed s:~:$RPM_BUILD_ROOT/home: | sed s:\$inimerge.*:: > ./main.sh
-chmod +x ./main.sh
-./main.sh
+install -p %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/delphi69dro.conf
+install -p %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/bcb69dro.conf
 
-# FIXME:
-#cp -r $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT%{_docdir}/kylix3_open-1.0
-#ln -s $RPM_BUILD_ROOT%{_kylixdata}/documentation $RPM_BUILD_ROOT%{_docdir}/kylix3_open-1.0
+# bad soname, package .so file
+#ln -s $(cd $RPM_BUILD_ROOT%{_libdir}; echo libborunwind.so.*.*) $RPM_BUILD_ROOT%{_libdir}/libborunwind.so
 
-oldpath=`pwd`
-cd $RPM_BUILD_ROOT%{_kylixdata}/help/app-defaults/
-rm ja_JP.eucjp
-# FIXME: I don't know how to add symlinks to rpm
-#ln -s ja_JP.eucJP ja_JP.eucjp
+# TODO ~/.borland/ files?
 
-cd $RPM_BUILD_ROOT%{_kylixdata}/help/lib/locale/
-rm ja_JP.eucjp
-# FIXME: I don't know how to add symlinks to rpm
-#ln -s ja_JP.eucJP ja_JP.eucjp
-
-# libraries
-# Create bin/libborcrtl.so file - this one is unneded - i think so... (pascalek)
-#cat << EOF > $RPM_BUILD_ROOT%{_libdir}/libborcrtl.so
-#GROUP ( %{_kylixdata}/lib/libborcrtl.so.1.0 %{_kylixdata}/lib/libborcrtl_nonshared.a )
-#EOF
-#??? chmod a+x $RPM_BUILD_ROOT%{_kylixdata}/bin/libborcrtl.so
-
-mv $RPM_BUILD_ROOT%{_kylixdata}/bin/*.so.* $RPM_BUILD_ROOT%{_libdir}
-mv $RPM_BUILD_ROOT%{_kylixdata}/bin/*.so $RPM_BUILD_ROOT%{_libdir}
-mv $RPM_BUILD_ROOT%{_libdir}/*ilink*.so* $RPM_BUILD_ROOT%{_kylixdata}/bin
-
-cd $RPM_BUILD_ROOT%{_libdir}
-#cd $RPM_BUILD_ROOT%{_kylixdata}/bin
-
-for k in *6.9.0* ; do k2=`echo $k | sed s/6.9.0\$/6.9/` ; if ! [ -f $k2 ] ; then ln -s $k $k2 ; fi ; done
-ln -sf libborqt-6.9.0-qt2.3.so libborqt-6.9-qt2.3.so
-ln -sf libqtintf-6.9.0-qt2.3.so libqtintf-6.9-qt2.3.so
-ln -sf libdbk.so.1.9 libdbk.so.1
-ln -sf libqt.so.2.3.0 libqt.so.2
-ln -sf librpcrt4.borland.so.1.0 librpcrt4.borland.so
-ln -sf libadvapi32.borland.so.1.0 libadvapi32.borland.so
-ln -sf libwine_unicode.borland.so.1.0 libwine_unicode.borland.so
-ln -sf libborcrtl.so.1.0 libborcrtl.so.1
-ln -sf libborstl.so.1.0 libborstl.so
-ln -sf libcomctl32.borland.so.1.0 libcomctl32.borland.so
-ln -sf libcomdlg32.borland.so.1.0 libcomdlg32.borland.so
-ln -sf libgdi32.borland.so.1.0 libgdi32.borland.so
-ln -sf libimm32.borland.so.1.0 libimm32.borland.so
-ln -sf liblz32.borland.so.1.0 liblz32.borland.so
-ln -sf libmpr.borland.so.1.0 libmpr.borland.so
-ln -sf libole32.borland.so.1.0 libole32.borland.so
-ln -sf liboleaut32.borland.so.1.0 liboleaut32.borland.so
-ln -sf libolecli32.borland.so.1.0 libolecli32.borland.so
-ln -sf liboledlg.borland.so.1.0 liboledlg.borland.so
-ln -sf libolepro32.borland.so.1.0 libolepro32.borland.so
-ln -sf libolesvr32.borland.so.1.0 libolesvr32.borland.so
-ln -sf libshell32.borland.so.1.0 libshell32.borland.so
-ln -sf libuser32.borland.so.1.0 libuser32.borland.so
-ln -sf libversion.borland.so.1.0 libversion.borland.so
-ln -sf libwine.borland.so.1.0 libwine.borland.so
-ln -sf libwineoss.drv.borland.so.1.0 libwineoss.drv.borland.so
-ln -sf libwinmm.borland.so.1.0 libwinmm.borland.so
-ln -sf libwinspool.drv.borland.so.1.0 libwinspool.drv.borland.so
-ln -sf libx11drv.borland.so.1.0 libx11drv.borland.so
-ln -sf libwininet.borland.so.1.0 libwininet.borland.so
-ln -sf libkernel32.borland.so.1.0 libkernel32.borland.so
-ln -sf libwineps.borland.so.1.0 libwineps.borland.so
-ln -sf libshlwapi.borland.so.1.0 libshlwapi.borland.so
-ln -sf libborunwind.so.6.0 libborunwind.so.6
-
-# /etc directory
-cd $oldpath
-
-cp -p $RPM_BUILD_ROOT/home/.borland/.borlandrc $RPM_BUILD_ROOT%{_sysconfdir}/kylix/borlandrc.conf
-cp $RPM_BUILD_ROOT%{_kylixdata}/bin/delphi69upg $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69upg.conf
-cp $RPM_BUILD_ROOT%{_kylixdata}/bin/delphi.dci $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69dci.conf
-cp $RPM_BUILD_ROOT%{_kylixdata}/bin/bcb.dci $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bcb69dci.conf
-cp $RPM_BUILD_ROOT%{_kylixdata}/bin/delphi69dmt $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69dmt.conf
-cp $RPM_BUILD_ROOT%{_kylixdata}/bin/bcb69dmt $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bcb69dmt.conf
-cp $RPM_BUILD_ROOT%{_kylixdata}/bin/incfiles.dat $RPM_BUILD_ROOT%{_sysconfdir}/kylix/incfilesdat.conf
-
-cat %{SOURCE3} > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/delphi69dro.conf
-cat %{SOURCE3} > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/bcb69dro.conf
-
-mv $RPM_BUILD_ROOT%{_kylixdata}/bin/dbkexe* $RPM_BUILD_ROOT%{_libdir}
-
+# not sure about these
+%if 0
 # Create dcc.cfg file
 cat <<EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/dcc.conf
 --msgcatalog=%{_kylixdata}/bin
@@ -159,7 +138,6 @@ cat <<EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/dcc.conf
 EOF
 
 # Create bcc.cfg file
-
 libgcc_fname=`%{__cc} -print-libgcc-file-name`
 libgcc_dir=`dirname $libgcc_fname`
 
@@ -174,113 +152,20 @@ cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/kylix/ilinkrc
 EOF
 
 ln -sf %{_sysconfdir}/kylix/borlandrc.conf $RPM_BUILD_ROOT/usr/local/etc
+%endif
 
 # wrapper
-cat %{SOURCE2}> $RPM_BUILD_ROOT%{_bindir}/bc++
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bc++.msg
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcpp.msg
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/dcc
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/hyperhelp
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/kreg
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcb
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/delphi
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcblin
-ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/ilink
-ln -sf %{_kylixdata}/bin/ilink.msg $RPM_BUILD_ROOT%{_bindir}/ilink.msg
-
-# kylixpath
-cat > $RPM_BUILD_ROOT%{_kylixdata}/bin/kylixpath <<EOF
-#!/bin/bash
-
-prepath=%{_kylixdata}
-if [ -n "\$1" ]; then
-	prepath=\$1
-fi
-kylixpath=\$prepath/
-has_slash=\`expr "\$kylixpath" : '\(.*//\)'\`
-if [ -n "\$has_slash" ]
-then
-	kylixpath=\$prepath
-else
-	kylixpath=\$prepath/
-fi
-b=bin
-l=lib
-h=help
-hl=help/lib
-
-path_found=
-for kpath in \$kylixpath/\$h \$kylixpath/\$l \$kylixpath/\$b; do
-	for ppath in \`echo \$PATH | sed s/:/\ /g\`; do
-		if [ "\$kpath" = "\$ppath" ]; then
-			path_found="Y"
-		fi
-	done
-	if [ -z "\$path_found" ]; then
-		PATH="\$kpath:\$PATH"
-	fi
-done
-
-locale=\${LC_ALL:-\${LC_CTYPE:-\${LANG:-"C"}}}
-path_found=
-for kpath in \$kylixpath/\$hl \$kylixpath/\$hl/locale/\$locale \$kylixpath/\$b; do
-	for ppath in \`echo \$LD_LIBRARY_PATH | sed s/:/\ /g\`; do
-		if [ "\$kpath" = "\$ppath" ]; then
-			path_found="Y"
-		fi
-	done
-	if [ -z "\$path_found" ]; then
-		LD_LIBRARY_PATH="\$kpath:\$LD_LIBRARY_PATH"
-	fi
-done
-
-XPPATH="\$kylixpath/\$h/xprinter"
-
-HHHOME="\$kylixpath/\$h"
-
-XAPPLRESDIR="\$kylixpath/\$h/app-defaults"
-
-NLSPATH="\$kylixpath/\$hl/locale/%L/%N.cat"
-
-export PATH
-export LD_LIBRARY_PATH
-export XPPATH
-export HHHOME
-export XAPPLRESDIR
-export NLSPATH
-#echo "PATH $PATH_SET_TO"
-#echo "\$PATH"
-#echo ""
-#echo "LD_LIBRARY_PATH $PATH_SET_TO"
-#echo "\$LD_LIBRARY_PATH"
-#echo ""
-#echo "XPPATH $PATH_SET_TO"
-#echo "\$XPPATH"
-#echo ""
-#echo "HHHOME $PATH_SET_TO"
-#echo "\$HHHOME"
-#echo ""
-#echo "XAPPLRESDIR $PATH_SET_TO"
-#echo "\$XAPPLRESDIR"
-#echo ""
-#echo "NLSPATH $PATH_SET_TO"
-#echo "\$NLSPATH"
-
-EOF
-
-cp -f $RPM_BUILD_ROOT%{_kylixdata}/shortcuts/gnome/* $RPM_BUILD_ROOT%{_desktopdir}
-
-oldpath=`pwd`
-cd $RPM_BUILD_ROOT%{_desktopdir}
-for k in *.desktop
-do
-	cat $k | sed "s+$RPM_BUILD_ROOT++" > tmp
-	cat tmp | sed "s:%{_kylixdata}/bin/registerkylix:%{_bindir}/kreg:" > $k
-	cat $k | sed "s:%{_kylixdata}/bin/startbcb:%{_bindir}/bcblin:" > tmp
-	cat tmp | sed "s:%{_kylixdata}/bin/startdelphi:%{_bindir}/delphi:" > $k
-done
-
-cd $oldpath
+install %{SOURCE2} $RPM_BUILD_ROOT%{_bindir}/bc++
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bc++.msg
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcpp.msg
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/dcc
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/hyperhelp
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/kreg
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcb
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/delphi
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcblin
+#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/ilink
+#ln -sf %{_kylixdata}/bin/ilink.msg $RPM_BUILD_ROOT%{_bindir}/ilink.msg
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -293,41 +178,87 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README
-
-%attr(755,root,root) %{_libdir}/bpl[Hcd]*.so*
-%attr(755,root,root) %{_libdir}/bplbcb*.so*
-%attr(755,root,root) %{_libdir}/bplvcl*.so*
-%attr(755,root,root) %{_libdir}/comp32p*.so*
-%attr(755,root,root) %{_libdir}/dcl*.so*
-%attr(755,root,root) %{_libdir}/lib[acdgiklmorstuwx]*.so*
-%attr(755,root,root) %{_libdir}/libboredit*.so*
-%attr(755,root,root) %{_libdir}/libborkbd*.so*
-%attr(755,root,root) %{_libdir}/libbortoken*.so*
-%attr(755,root,root) %{_libdir}/libversion*.so*
-%attr(755,root,root) %{_libdir}/winhelp*.so*
-%attr(755,root,root) %{_libdir}/dbkexe*
-
-%dir %{_sysconfdir}/kylix
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/kylix/*
-/usr/local/etc/*
+%doc DEPLOY INSTALL PREINSTALL README
+%doc license.txt privacy.txt
+%dir %{_sysconfdir}
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*
 %{_desktopdir}/*.desktop
-
 %attr(755,root,root) %{_bindir}/*
 
-%{_kylixdata}/*.xpm
-%{_kylixdata}/*.slip
-%{_kylixdata}/*.txt
-%{_kylixdata}/DEPLOY
-%{_kylixdata}/INSTALL
-%{_kylixdata}/PREINSTALL
-%{_kylixdata}/source
-%{_kylixdata}/shortcuts
-%{_kylixdata}/objrepos
-%{_kylixdata}/include
-%{_kylixdata}/images
-%{_kylixdata}/examples
-%{_kylixdata}/documentation
+%attr(755,root,root) %{_libdir}/bplHelpViewers.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplbcbclxide.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplbcbide.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplclxdesigner.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplcoreide.so.*.*.*
+%attr(755,root,root) %{_libdir}/bpldelphiclxide.so.*.*.*
+%attr(755,root,root) %{_libdir}/bpldelphide.so.*.*.*
+%attr(755,root,root) %{_libdir}/bpldesigndgm.so.*.*.*
+%attr(755,root,root) %{_libdir}/bpldesignhooks.so.*.*.*
+%attr(755,root,root) %{_libdir}/bpldesignide.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplvcl.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplvclex.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplvclide.so.*.*.*
+%attr(755,root,root) %{_libdir}/libadvapi32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libboredit.so.*.*.*
+%attr(755,root,root) %{_libdir}/libborkbd.so.*.*.*
+%attr(755,root,root) %{_libdir}/libbortoken.so.*.*.*
+%attr(755,root,root) %{_libdir}/libbortoken.so.*.*
+%attr(755,root,root) %{_libdir}/libcomctl32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libcomdlg32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libdbk.so.1.9
+%attr(755,root,root) %{_libdir}/libdcc.so.*.*.*
+%attr(755,root,root) %{_libdir}/libdcc.so.*.*
+%attr(755,root,root) %{_libdir}/libgdi32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libibmdom.so.1
+%attr(755,root,root) %{_libdir}/libilinkintf.so.*.*.*
+%attr(755,root,root) %{_libdir}/libilinkintf.so.*.*
+%attr(755,root,root) %{_libdir}/libimm32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libkernel32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/liblz32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libmpr.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libole32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/liboleaut32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libolecli32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/liboledlg.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libolepro32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libolesvr32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/librpcrt4.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libshell32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libshlwapi.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libuser32.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libversion.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libwine.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libwine_unicode.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libwineoss.drv.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libwineps.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libwininet.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libwinmm.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libwinspool.drv.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libx11drv.borland.so.*.*
+%attr(755,root,root) %{_libdir}/libxmlide.so.*.*.*
+
+%dir %{_libexecdir}
+%dir %{_libexecdir}/bin
+%attr(755,root,root) %{_libexecdir}/bin/*
+%{_libexecdir}/lib
+%{_libexecdir}/*.a
+%{_libexecdir}/comp32p.so
+%attr(755,root,root) %{_libexecdir}/dclmlwiz.so.*.*.*
+%attr(755,root,root) %{_libexecdir}/dclstd.so.*.*.*
+%attr(755,root,root) %{_libexecdir}/dcluser.so.*.*.*
+%{_libexecdir}/ilink.so
+%{_libexecdir}/libborcrtl.so
+%{_libexecdir}/libtextform.so
+%{_libexecdir}/libxerces-*.so
+%{_libexecdir}/winhelp.so
+
+%{_datadir}
+%{_examplesdir}/*
+%{_includedir}
+
+%if 0
+# unfinished
+/usr/local/etc/*
 %{_kylixdata}/lib
 
 %dir %{_kylixdata}
@@ -397,20 +328,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_kylixdata}/bin/uk.dem
 %{_kylixdata}/bin/us.dem
 %{_kylixdata}/bin/version.txt
+%endif
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/bplvisualclx.so*
-%attr(755,root,root) %{_libdir}/libqt.so*
-%attr(755,root,root) %{_libdir}/libqtintf-*
-%attr(755,root,root) %{_libdir}/libborqt-*
-%attr(755,root,root) %{_libdir}/libborunwind.so*
-%attr(755,root,root) %{_libdir}/libborstl.so*
-%attr(755,root,root) %{_libdir}/libborcrtl.so*
+# according to DEPLOY
+# 2.5.1 GPL-Licensed Packages
+#%attr(755,root,root) %{_libdir}/bplbaseclx.so.*.*.*
+%attr(755,root,root) %{_libdir}/bplvisualclx.so.*.*.*
+%attr(755,root,root) %{_libdir}/libqt.so.*.*.*
+%attr(755,root,root) %{_libdir}/libqtintf-*.*.*-qt*.so*
+%attr(755,root,root) %{_libdir}/libborqt-*.*.*-qt*.so*
+%attr(755,root,root) %{_libdir}/libborunwind.so.*.*
+%{_libdir}/libborunwind.so.6
+%{_libdir}/libborunwind.so
+# 2.5.2 Other packages (not Borland Protected nor Dual-Licensed)
+%attr(755,root,root) %{_libdir}/libborstl.so.*.*
+%attr(755,root,root) %{_libdir}/libborcrtl.so.*.*
 
-#this one was not mentioned in DEPLOY file
-#but IMVHO it ought to be...
-%attr(755,root,root) %{_libdir}/bplrtl.so*
-
-#and this one was :)
-#%attr(755,root,root) %{_libdir}/bplbaseclx.so*
+# this one was not mentioned in DEPLOY file but IMVHO it ought to be...
+# and this makes the package not redistributable
+%attr(755,root,root) %{_libdir}/bplrtl.so.*.*.*

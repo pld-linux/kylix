@@ -4,7 +4,7 @@ Summary:	Kylix 3 Open Edition
 Summary(pl):	Kylix 3 - Wydanie otwarte
 Name:		kylix
 Version:	3
-Release:	0.2
+Release:	0.3
 License:	non-distributable
 Group:		X11/Development/Tools
 Source0:	ftp://ftpd.borland.com/download/kylix/k3/%{name}%{version}_open.tar.gz
@@ -158,7 +158,7 @@ ln -sf %{_sysconfdir}/kylix/borlandrc.conf $RPM_BUILD_ROOT/usr/local/etc
 install %{SOURCE2} $RPM_BUILD_ROOT%{_bindir}/bc++
 #ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bc++.msg
 #ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcpp.msg
-#ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/dcc
+ln -sf bc++ $RPM_BUILD_ROOT%{_bindir}/dcc
 #ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/hyperhelp
 #ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/kreg
 #ln -sf %{_bindir}/bc++ $RPM_BUILD_ROOT%{_bindir}/bcb

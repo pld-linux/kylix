@@ -1,7 +1,7 @@
 # TODO:
 # - more subpackages: -bcb -delphi -bcb-ide -delphi-ide -doc
 Summary:	Kylix 3 Open Edition
-Summary(pl):	Kylix 3 - Wydanie otwarte
+Summary(pl.UTF-8):   Kylix 3 - Wydanie otwarte
 Name:		kylix
 Version:	3
 Release:	0.3
@@ -36,14 +36,14 @@ Borland Kylix 3 Enterprise delivers an integrated C++ and Delphi
 language solution for developing database, GUI, and Web applications
 for Linux which are cross-platform ready for Windows.
 
-%description -l pl
-Borland Kylix 3 Enterprise dostarcza zintegrowane ¶rodowisko dla
-jêzyków C++ i Delphi do tworzenia aplikacji bazodanowych, graficznych
+%description -l pl.UTF-8
+Borland Kylix 3 Enterprise dostarcza zintegrowane Å›rodowisko dla
+jÄ™zykÃ³w C++ i Delphi do tworzenia aplikacji bazodanowych, graficznych
 i WWW dla Linuksa, gotowych do przeniesienia na Windows.
 
 %package libs
 Summary:	Kylix libraries
-Summary(pl):	Biblioteki Kyliksa
+Summary(pl.UTF-8):   Biblioteki Kyliksa
 # not redistributable due packaged bplrtl.so
 #License:	redistributable
 Group:		Development/Libraries
@@ -52,7 +52,7 @@ Provides:	libborunwind.so
 %description libs
 Kylix libraries.
 
-%description libs -l pl
+%description libs -l pl.UTF-8
 Biblioteki Kyliksa.
 
 %prep

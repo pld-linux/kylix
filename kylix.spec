@@ -1,7 +1,7 @@
 # TODO:
 # - more subpackages: -bcb -delphi -bcb-ide -delphi-ide -doc
 Summary:	Kylix 3 Open Edition
-Summary(pl.UTF-8):   Kylix 3 - Wydanie otwarte
+Summary(pl.UTF-8):	Kylix 3 - Wydanie otwarte
 Name:		kylix
 Version:	3
 Release:	0.3
@@ -43,7 +43,7 @@ i WWW dla Linuksa, gotowych do przeniesienia na Windows.
 
 %package libs
 Summary:	Kylix libraries
-Summary(pl.UTF-8):   Biblioteki Kyliksa
+Summary(pl.UTF-8):	Biblioteki Kyliksa
 # not redistributable due packaged bplrtl.so
 #License:	redistributable
 Group:		Development/Libraries

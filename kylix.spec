@@ -57,7 +57,7 @@ Biblioteki Kyliksa.
 
 %prep
 %setup -q -n %{name}%{version}_open
-%patch0 -p1
+%patch -P0 -p1
 
 install -D %{SOURCE4} bin/kylixpath
 ./setup.data/bin/x86/setup -i `pwd`/root -m -n -a || {
